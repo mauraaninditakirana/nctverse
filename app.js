@@ -220,6 +220,17 @@ app.get('/admin/members/add', (req, res) => {
         res.render('admin/member_form', { units: results });
     });
 });
+//rute tambah tabel members
+app.get('/admin/members', (req, res) => {
+    const sql = 'SELECT * FROM members ORDER BY id DESC'; // Urutkan dari yang terbaru
+    
+    db.query(sql, (err, results) => {
+        if (err) throw err;
+        
+        // Kirim data members ke halaman tabel
+        res.render('admin/members', { members: results });
+    });
+});
 
 // --- 2. PROSES SIMPAN DATA (POST) ---
 app.post('/admin/members/add', (req, res) => {
@@ -255,6 +266,22 @@ app.post('/admin/members/add', (req, res) => {
         } else {
             res.redirect('/admin');
         }
+    });
+});
+app.get('/admin/members/delete/:id', (req, res) => {
+    const memberId = req.params.id;
+
+    // 1. Hapus dulu relasi unitnya (Biar database gak bingung)
+    db.query('DELETE FROM member_unit WHERE member_id = ?', [memberId], (err) => {
+        if (err) throw err;
+
+        // 2. Baru hapus membernya
+        db.query('DELETE FROM members WHERE id = ?', [memberId], (err) => {
+            if (err) throw err;
+            
+            // Balik ke tabel list
+            res.redirect('/admin/members');
+        });
     });
 });
 
