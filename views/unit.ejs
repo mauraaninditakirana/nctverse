@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= unit.nama_unit %> - NCTverse</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #e6e6e6;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 0;
+        }
+        /* Header Unit */
+        .hero {
+            background: linear-gradient(0deg, #050505 0%, rgba(30,30,30,0.8) 100%);
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 2px solid #ccff00;
+        }
+        h1 { color: #ccff00; font-size: 3rem; margin: 0; text-transform: uppercase; }
+        p.desc { max-width: 600px; margin: 15px auto; color: #aaa; }
+        
+        /* Tombol Download JSON (API) */
+        .btn-api {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #111;
+            border: 1px solid #ccff00;
+            color: #ccff00;
+            text-decoration: none;
+            font-size: 0.8rem;
+            border-radius: 50px;
+            transition: 0.3s;
+        }
+        .btn-api:hover { background: #ccff00; color: #000; font-weight: bold; }
+
+        /* Navigasi Tab */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+        .tab-btn {
+            background: #222; border: none; color: #fff;
+            padding: 12px 30px; cursor: pointer; font-size: 1rem;
+        }
+        .tab-btn.active { background: #ccff00; color: #000; font-weight: bold; }
+
+        /* Konten */
+        .content-area { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        .tab-content { display: none; } /* Sembunyikan semua dulu */
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+
+        /* Style Grid Member */
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        .member-card {
+            background: #111; padding: 15px; text-align: center;
+            border-radius: 10px; text-decoration: none; color: white;
+            border: 1px solid #333; transition: 0.3s;
+        }
+        .member-card:hover { border-color: #ccff00; transform: translateY(-5px); }
+        .member-photo {
+            width: 100px; height: 100px; background: #333; border-radius: 50%;
+            margin: 0 auto 10px; object-fit: cover;
+        }
+
+        /* Style Album Accordion */
+        .album-item { margin-bottom: 15px; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        .album-header {
+            background: #111; padding: 15px 20px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .album-header:hover { background: #1a1a1a; }
+        .album-title { font-weight: bold; color: #fff; }
+        .album-body {
+            background: #000; padding: 20px; display: none; /* Default tertutup */
+            border-top: 1px solid #333;
+        }
+        .song-list { list-style: decimal inside; color: #aaa; line-height: 1.8; }
+        
+        .btn-download-album {
+            margin-top: 15px; font-size: 0.8rem; color: #ccff00;
+            text-decoration: underline; cursor: pointer; display: block;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .back-link { position: absolute; top: 20px; left: 20px; color: #fff; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="back-link">← Back to Home</a>
+
+    <div class="hero">
+        <h1><%= unit.nama_unit %></h1>
+        <p class="desc"><%= unit.deskripsi %></p>
+        
+        <a href="/api/unit/<%= unit.id %>" class="btn-api" target="_blank">
+            ⬇ Download Data <%= unit.nama_unit %> (JSON)
+        </a>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('members')">MEMBERS</button>
+        <button class="tab-btn" onclick="openTab('albums')">ALBUMS</button>
+    </div>
+
+    <div class="content-area">
+        
+        <div id="members" class="tab-content active">
+            <div class="member-grid">
+                <% if(members.length > 0) { %>
+                    <% members.forEach(m => { %>
+                        <a href="/member/<%= m.id %>" class="member-card">
+                            <img src="/images/<%= m.foto || 'default.jpg' %>" class="member-photo" alt="Foto">
+                            <div><strong><%= m.nama_panggung %></strong></div>
+                            <div style="font-size: 0.8rem; color: #888;"><%= m.posisi %></div>
+                        </a>
+                    <% }) %>
+                <% } else { %>
+                    <p style="text-align: center;">Belum ada data member.</p>
+                <% } %>
+            </div>
+        </div>
+
+        <div id="albums" class="tab-content">
+            <% if(albums.length > 0) { %>
+                <% albums.forEach(album => { %>
+                    <div class="album-item">
+                        <div class="album-header" onclick="toggleAlbum(this)">
+                            <span class="album-title">💿 <%= album.judul %> (<%= album.tgl_rilis %>)</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="album-body">
+                            <p>Cover: <%= album.cover || 'No Cover' %></p>
+                            <div class="song-list">
+                                <div>Click "Simpan List Lagu" to get tracks...</div>
+                            </div>
+                            
+                            <a href="/api/album/<%= album.id %>" class="btn-download-album">
+                                💾 Simpan List Lagu (Download .txt)
+                            </a>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p style="text-align: center;">Belum ada data album.</p>
+            <% } %>
+        </div>
+
+    </div>
+
+    <script>
+        // Ganti Tab
+        function openTab(tabName) {
+            // Sembunyikan semua tab
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Munculkan tab yang dipilih
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Script Accordion Album
+        function toggleAlbum(element) {
+            let body = element.nextElementSibling;
+            if (body.style.display === "block") {
+                body.style.display = "none";
+            } else {
+                body.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
