@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Album Baru</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 40px; }
+        .form-container { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #111; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input[type="text"], input[type="date"], select {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;
+        }
+        button {
+            background: #ccff00; color: #000; border: none; padding: 15px 30px; 
+            font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; font-size: 1rem;
+        }
+        button:hover { background: #b3e600; }
+        .back { display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>💿 Tambah Album Baru</h2>
+        
+        <form action="/admin/albums/add" method="POST">
+            
+            <div class="form-group">
+                <label>Judul Album</label>
+                <input type="text" name="judul" required placeholder="Contoh: ISTJ - The 3rd Album">
+            </div>
+
+            <div class="form-group">
+                <label>Milik Unit:</label>
+                <select name="unit_id" required>
+                    <option value="">-- Pilih Unit --</option>
+                    <% units.forEach(u => { %>
+                        <option value="<%= u.id %>"><%= u.nama_unit %></option>
+                    <% }) %>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Tanggal Rilis</label>
+                <input type="date" name="tgl_rilis" required>
+            </div>
+
+            <div class="form-group">
+                <label>Nama File Cover</label>
+                <input type="text" name="cover" value="default_album.jpg">
+            </div>
+
+            <button type="submit">SIMPAN ALBUM</button>
+        </form>
+
+        <a href="/admin/albums" class="back">Kembali</a>
+    </div>
+
+</body>
+</html>

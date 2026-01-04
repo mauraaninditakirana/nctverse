@@ -372,6 +372,31 @@ app.get('/admin/albums', (req, res) => {
     });
 });
 
+//tambah album
+// --- FORM TAMBAH ALBUM ---
+app.get('/admin/albums/add', (req, res) => {
+    // Kita butuh data units untuk isi Dropdown
+    db.query('SELECT * FROM units', (err, results) => {
+        if (err) throw err;
+        res.render('admin/album_form', { units: results });
+    });
+});
+
+// --- PROSES SIMPAN ALBUM (POST) ---
+app.post('/admin/albums/add', (req, res) => {
+    const { unit_id, judul, tgl_rilis, cover } = req.body;
+    
+    const sql = 'INSERT INTO albums (unit_id, judul, tgl_rilis, cover) VALUES (?, ?, ?, ?)';
+    
+    db.query(sql, [unit_id, judul, tgl_rilis, cover], (err) => {
+        if (err) {
+            console.error(err);
+            return res.send('Gagal simpan album');
+        }
+        res.redirect('/admin/albums');
+    });
+});
+
 app.listen(port, () => {
     console.log(`🚀 Server berjalan di http://localhost:${port}`);
 });
