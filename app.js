@@ -354,6 +354,24 @@ app.post('/admin/members/update/:id', (req, res) => {
     });
 });
 
+//admin album
+// KELOLA ALBUMS (LIST)
+
+app.get('/admin/albums', (req, res) => {
+    // Ambil data album GABUNG dengan data units (biar ketahuan ini album siapa)
+    const sql = `
+        SELECT albums.*, units.nama_unit 
+        FROM albums 
+        JOIN units ON albums.unit_id = units.id 
+        ORDER BY albums.tgl_rilis DESC
+    `;
+    
+    db.query(sql, (err, results) => {
+        if (err) throw err;
+        res.render('admin/albums', { albums: results });
+    });
+});
+
 app.listen(port, () => {
     console.log(`🚀 Server berjalan di http://localhost:${port}`);
 });
