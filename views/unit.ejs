@@ -247,7 +247,7 @@
                 <% albums.forEach(album=> { %>
                     <div class="album-item">
                         <div class="album-header" onclick="toggleAlbum(this)">
-                            <span class="album-title">💿 <%= album.judul %> (<%= album.tgl_rilis %>)</span>
+                            <span class="album-title">💿 <%= album.judul %> (<%= new Date(album.tgl_rilis).toDateString() %>)</span>
                             <span>▼</span>
                         </div>
                         <div class="album-body">
