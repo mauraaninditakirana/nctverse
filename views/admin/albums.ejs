@@ -47,11 +47,17 @@
             color: white;
         }
 
+        /* Style Tombol Logout */
         .logout {
             margin-top: auto;
             background: #cc0000;
             color: white !important;
             text-align: center;
+            font-weight: bold;
+        }
+
+        .logout:hover {
+            background: #990000;
         }
 
         .content {
@@ -135,6 +141,8 @@
             <a href="/admin/albums" class="active">💿 Kelola Albums</a>
             <a href="/admin/units">🏢 Kelola Units</a>
             <a href="/" target="_blank">🌏 Lihat Website</a>
+            
+            <a href="/logout" class="logout">Logout</a>
         </div>
     </div>
 
@@ -175,10 +183,12 @@
                                     <% } %>
                         </td>
                         <td>
-                            <a href="/admin/albums/<%= a.id %>/songs" class="action-link" style="color: green; margin-right:15px;">🎵 Lagu</a>
+                            <a href="/admin/albums/<%= a.id %>/songs" class="action-link"
+                                style="color: green; margin-right:15px;">🎵 Lagu</a>
 
-<a href="/admin/albums/edit/<%= a.id %>" class="action-link">✏️ Edit</a>
-<a href="/admin/albums/delete/<%= a.id %>" class="delete-link" onclick="return confirm('Yakin hapus album ini?')">🗑️ Hapus</a>
+                            <a href="/admin/albums/edit/<%= a.id %>" class="action-link">✏️ Edit</a>
+                            <a href="/admin/albums/delete/<%= a.id %>" class="delete-link"
+                                onclick="return confirm('Yakin hapus album ini?')">🗑️ Hapus</a>
                         </td>
                     </tr>
                     <% }) %>
