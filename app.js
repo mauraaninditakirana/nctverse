@@ -20,7 +20,7 @@ db.connect((err) => {
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-
+app.use(express.urlencoded({ extended: true }));
 // 2. RUTE HALAMAN WEB (VIEW)
 // --- HOME ---
 app.get('/', (req, res) => {
@@ -209,6 +209,52 @@ app.get('/admin', (req, res) => {
             totalMembers: results[0].totalMembers,
             totalAlbums: results[0].totalAlbums
         });
+    });
+});
+
+// --- 1. TAMPILKAN HALAMAN FORMULIR ---
+app.get('/admin/members/add', (req, res) => {
+    // Kita butuh data units supaya bisa muncul di Checkbox
+    db.query('SELECT * FROM units', (err, results) => {
+        if (err) throw err;
+        res.render('admin/member_form', { units: results });
+    });
+});
+
+// --- 2. PROSES SIMPAN DATA (POST) ---
+app.post('/admin/members/add', (req, res) => {
+    const { nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, units } = req.body;
+
+    // A. Simpan ke tabel 'members' dulu
+    const sqlMember = `INSERT INTO members (nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    
+    db.query(sqlMember, [nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.send('Gagal menyimpan member.');
+        }
+
+        // B. Ambil ID member yang barusan dibuat
+        const newMemberId = result.insertId;
+        
+        // C. Simpan Relasi Unit (Jika ada unit yg dipilih)
+        if (units) {
+            // Cek apakah units itu array (banyak) atau string (satu)
+            // Kalau cuma pilih 1, dia jadi string. Kalau banyak jadi array.
+            const unitArray = Array.isArray(units) ? units : [units];
+
+            // Siapkan data untuk insert massal
+            const values = unitArray.map(unitId => [newMemberId, unitId]);
+            
+            const sqlRelasi = 'INSERT INTO member_unit (member_id, unit_id) VALUES ?';
+            db.query(sqlRelasi, [values], (err) => {
+                if (err) console.error(err);
+                // Selesai! Kembali ke dashboard
+                res.redirect('/admin'); 
+            });
+        } else {
+            res.redirect('/admin');
+        }
     });
 });
 
