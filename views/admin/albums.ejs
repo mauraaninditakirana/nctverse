@@ -175,9 +175,10 @@
                                     <% } %>
                         </td>
                         <td>
-                            <a href="/admin/albums/edit/<%= a.id %>" class="action-link">✏️ Edit</a>
-                            <a href="/admin/albums/delete/<%= a.id %>" class="delete-link"
-                                onclick="return confirm('Yakin hapus album ini?')">🗑️ Hapus</a>
+                            <a href="/admin/albums/<%= a.id %>/songs" class="action-link" style="color: green; margin-right:15px;">🎵 Lagu</a>
+
+<a href="/admin/albums/edit/<%= a.id %>" class="action-link">✏️ Edit</a>
+<a href="/admin/albums/delete/<%= a.id %>" class="delete-link" onclick="return confirm('Yakin hapus album ini?')">🗑️ Hapus</a>
                         </td>
                     </tr>
                     <% }) %>
