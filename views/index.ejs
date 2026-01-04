@@ -39,13 +39,13 @@
             margin: 0 auto;
         }
 
-        /* Kartu Unit */
+        /* Kartu Unit - Padding disesuaikan jadi 20px biar lebih pas */
         .card {
             background: #111;
             border: 1px solid #333;
             border-radius: 15px;
             width: 280px;
-            padding: 30px;
+            padding: 20px; 
             text-decoration: none;
             color: white;
             transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
@@ -70,14 +70,10 @@
             font-size: 1.8rem;
             font-weight: bold;
             color: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 5px; /* Jarak bawah dikurangi karena deskripsi hilang */
         }
 
-        .unit-desc {
-            font-size: 0.9rem;
-            color: #aaa;
-            line-height: 1.4;
-        }
+        /* Class .unit-desc SUDAH DIHAPUS dari CSS ini */
 
         .footer {
             margin-top: 50px;
@@ -107,7 +103,6 @@
                 </div>
                 
                 <div class="unit-name"><%= unit.nama_unit %></div>
-                <div class="unit-desc"><%= unit.deskripsi || 'Unit of NCT' %></div>
             </a>
         <% }); %>
     </div>
