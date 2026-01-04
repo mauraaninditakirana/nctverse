@@ -285,6 +285,75 @@ app.get('/admin/members/delete/:id', (req, res) => {
     });
 });
 
+// ==========================================
+// FITUR EDIT MEMBER (UPDATE)
+// ==========================================
+
+// 1. TAMPILKAN FORM EDIT (GET)
+app.get('/admin/members/edit/:id', (req, res) => {
+    const memberId = req.params.id;
+
+    // Query 1: Ambil data member
+    db.query('SELECT * FROM members WHERE id = ?', [memberId], (err, memberResult) => {
+        if (err) throw err;
+        const member = memberResult[0];
+
+        // Query 2: Ambil semua unit (buat pilihan checkbox)
+        db.query('SELECT * FROM units', (err, unitsResult) => {
+            if (err) throw err;
+
+            // Query 3: Ambil ID unit yang SUDAH dimiliki member ini (biar checkbox tercentang)
+            db.query('SELECT unit_id FROM member_unit WHERE member_id = ?', [memberId], (err, memberUnits) => {
+                if (err) throw err;
+
+                // Ubah format [{unit_id: 1}, {unit_id: 2}] jadi array biasa [1, 2]
+                // Supaya gampang dicek di EJS
+                const currentUnitIds = memberUnits.map(item => item.unit_id);
+
+                // Kirim semua ke member_edit.ejs
+                res.render('admin/member_edit', {
+                    member: member,
+                    units: unitsResult,
+                    currentUnitIds: currentUnitIds
+                });
+            });
+        });
+    });
+});
+
+// 2. PROSES SIMPAN PERUBAHAN (POST)
+app.post('/admin/members/update/:id', (req, res) => {
+    const memberId = req.params.id;
+    const { nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, units } = req.body;
+
+    // A. Update tabel members
+    const sqlMember = `UPDATE members SET nama_panggung=?, nama_lengkap=?, tgl_lahir=?, asal_negara=?, posisi=?, biografi=?, foto=? WHERE id=?`;
+
+    db.query(sqlMember, [nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, memberId], (err) => {
+        if (err) throw err;
+
+        // B. Update Unit (Cara paling gampang: Hapus semua yg lama, Insert yg baru)
+        // 1. Hapus relasi lama
+        db.query('DELETE FROM member_unit WHERE member_id = ?', [memberId], (err) => {
+            if (err) throw err;
+
+            // 2. Masukkan relasi baru (Kalau ada yang dicentang)
+            if (units) {
+                const unitArray = Array.isArray(units) ? units : [units];
+                const values = unitArray.map(uId => [memberId, uId]);
+
+                db.query('INSERT INTO member_unit (member_id, unit_id) VALUES ?', [values], (err) => {
+                    if (err) throw err;
+                    res.redirect('/admin/members'); // Selesai
+                });
+            } else {
+                // Kalau semua centang dihilangkan (dia gak punya unit)
+                res.redirect('/admin/members');
+            }
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`🚀 Server berjalan di http://localhost:${port}`);
 });
