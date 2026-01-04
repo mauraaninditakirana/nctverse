@@ -3,15 +3,15 @@ const mysql = require('mysql2');
 const app = express();
 const port = 3000;
 
-// 1. Konfigurasi Koneksi Database (Sambung ke Laragon)
+// 1. Konfigurasi Koneksi Database
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'root',      // User default Laragon/XAMPP
-    password: '',      // Password biasanya kosong
-    database: 'nct_archive' // Nama database yang kita buat tadi
+    user: 'root',      
+    password: '',      
+    database: 'nct_archive' 
 });
 
-// 2. Cek Koneksi Database
+// 2. Cek Koneksi
 db.connect((err) => {
     if (err) {
         console.error('❌ Gagal konek ke database:', err);
@@ -20,16 +20,29 @@ db.connect((err) => {
     }
 });
 
-// 3. Setting View Engine (Supaya bisa baca file EJS)
+// 3. Setup View Engine EJS
 app.set('view engine', 'ejs');
-app.use(express.static('public')); // Untuk folder gambar/css nanti
+app.use(express.static('public')); 
 
-// 4. Rute Halaman Utama (Tes Server)
+// DAFTAR RUTE (ROUTES)
+// RUTE 1: HALAMAN DEPAN (HOME)
+// Mengambil semua data dari tabel 'units'
 app.get('/', (req, res) => {
-    res.send('<h1>Halo! Server NCTverse Berjalan! 💚</h1>');
+    const sql = 'SELECT * FROM units';
+    
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error(err);
+            res.send('Gagal mengambil data dari database.');
+        } else {
+            // Render file views/index.ejs dan kirim data 'units'
+            res.render('index', { units: results });
+        }
+    });
 });
 
-// 5. Jalankan Server
+// JALANKAN SERVER
+
 app.listen(port, () => {
     console.log(`🚀 Server berjalan di http://localhost:${port}`);
 });
