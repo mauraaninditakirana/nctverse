@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Tambah Unit</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 40px; }
+        .form-container { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background: #ccff00; color: #000; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; }
+        .back { display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>🏢 Tambah Unit Baru</h2>
+        <form action="/admin/units/add" method="POST">
+            <div class="form-group">
+                <label>Nama Unit</label>
+                <input type="text" name="nama_unit" required placeholder="Contoh: NCT U">
+            </div>
+            <div class="form-group">
+                <label>Deskripsi</label>
+                <textarea name="deskripsi" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Nama File Logo (Opsional)</label>
+                <input type="text" name="logo" placeholder="logo_nctu.jpg">
+            </div>
+            <button type="submit">SIMPAN UNIT</button>
+        </form>
+        <a href="/admin/units" class="back">Kembali</a>
+    </div>
+</body>
+</html>
