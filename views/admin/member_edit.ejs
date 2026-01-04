@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Member - <%= member.nama_panggung %></title>
+    <style>
+        /* Kita pakai style yang sama kayak Add Form biar konsisten */
+        body { font-family: sans-serif; background: #f4f4f4; padding: 40px; }
+        .form-container { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #111; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input[type="text"], input[type="date"], textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;
+        }
+        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px; }
+        .checkbox-item { background: #eee; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; }
+        
+        button {
+            background: #007bff; color: white; border: none; padding: 15px 30px; 
+            font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; font-size: 1rem;
+        }
+        button:hover { background: #0056b3; }
+        .back { display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>✏️ Edit Data: <%= member.nama_panggung %></h2>
+        
+        <form action="/admin/members/update/<%= member.id %>" method="POST">
+            
+            <div class="form-group">
+                <label>Nama Panggung</label>
+                <input type="text" name="nama_panggung" value="<%= member.nama_panggung %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" name="nama_lengkap" value="<%= member.nama_lengkap %>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Tanggal Lahir (Format: YYYY-MM-DD)</label>
+                <% 
+                   // Trik kecil untuk memformat tanggal database ke input HTML
+                   let tgl = new Date(member.tgl_lahir);
+                   let dateStr = tgl.toISOString().split('T')[0];
+                %>
+                <input type="date" name="tgl_lahir" value="<%= dateStr %>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Asal Negara</label>
+                <input type="text" name="asal_negara" value="<%= member.asal_negara %>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Posisi</label>
+                <input type="text" name="posisi" value="<%= member.posisi %>">
+            </div>
+
+            <div class="form-group">
+                <label>Biografi Singkat</label>
+                <textarea name="biografi" rows="4"><%= member.biografi %></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Nama File Foto</label>
+                <input type="text" name="foto" value="<%= member.foto %>">
+            </div>
+
+            <div class="form-group">
+                <label>Unit Member (Centang untuk mengubah):</label>
+                <div class="checkbox-group">
+                    <% units.forEach(u => { %>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="units" value="<%= u.id %>" 
+                                <% if (currentUnitIds.includes(u.id)) { %> checked <% } %> 
+                            > 
+                            <%= u.nama_unit %>
+                        </label>
+                    <% }) %>
+                </div>
+            </div>
+
+            <button type="submit">SIMPAN PERUBAHAN</button>
+        </form>
+
+        <a href="/admin/members" class="back">Batal & Kembali</a>
+    </div>
+
+</body>
+</html>
