@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Album</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 40px; }
+        .form-container { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; }
+        .back { display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>✏️ Edit Album</h2>
+        <form action="/admin/albums/update/<%= album.id %>" method="POST">
+            
+            <div class="form-group">
+                <label>Judul Album</label>
+                <input type="text" name="judul" value="<%= album.judul %>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Milik Unit:</label>
+                <select name="unit_id" required>
+                    <% units.forEach(u => { %>
+                        <option value="<%= u.id %>" <%= album.unit_id === u.id ? 'selected' : '' %>>
+                            <%= u.nama_unit %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Tanggal Rilis</label>
+                <% 
+                   let tgl = new Date(album.tgl_rilis);
+                   let dateStr = tgl.toISOString().split('T')[0];
+                %>
+                <input type="date" name="tgl_rilis" value="<%= dateStr %>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Nama File Cover</label>
+                <input type="text" name="cover" value="<%= album.cover %>">
+            </div>
+
+            <button type="submit">UPDATE ALBUM</button>
+        </form>
+        <a href="/admin/albums" class="back">Batal</a>
+    </div>
+</body>
+</html>

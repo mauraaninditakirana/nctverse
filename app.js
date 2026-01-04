@@ -397,6 +397,51 @@ app.post('/admin/albums/add', (req, res) => {
     });
 });
 
+// --- HAPUS ALBUM ---
+app.get('/admin/albums/delete/:id', (req, res) => {
+    // Hapus lagunya dulu biar bersih (Opsional, tapi praktik bagus)
+    db.query('DELETE FROM songs WHERE album_id = ?', [req.params.id], (err) => {
+        // Lalu hapus albumnya
+        db.query('DELETE FROM albums WHERE id = ?', [req.params.id], (err) => {
+            if (err) throw err;
+            res.redirect('/admin/albums');
+        });
+    });
+});
+
+// --- FORM EDIT ALBUM (GET) ---
+app.get('/admin/albums/edit/:id', (req, res) => {
+    const albumId = req.params.id;
+    
+    // Ambil data album yg mau diedit
+    db.query('SELECT * FROM albums WHERE id = ?', [albumId], (err, resultAlbum) => {
+        if (err) throw err;
+        
+        // Ambil data units untuk dropdown
+        db.query('SELECT * FROM units', (err, resultUnits) => {
+            if (err) throw err;
+            
+            res.render('admin/album_edit', { 
+                album: resultAlbum[0],
+                units: resultUnits
+            });
+        });
+    });
+});
+
+// --- PROSES UPDATE ALBUM (POST) ---
+app.post('/admin/albums/update/:id', (req, res) => {
+    const { unit_id, judul, tgl_rilis, cover } = req.body;
+    const albumId = req.params.id;
+    
+    const sql = 'UPDATE albums SET unit_id=?, judul=?, tgl_rilis=?, cover=? WHERE id=?';
+    
+    db.query(sql, [unit_id, judul, tgl_rilis, cover, albumId], (err) => {
+        if (err) throw err;
+        res.redirect('/admin/albums');
+    });
+});
+
 app.listen(port, () => {
     console.log(`🚀 Server berjalan di http://localhost:${port}`);
 });
