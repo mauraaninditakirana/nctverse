@@ -493,6 +493,52 @@ app.get('/admin/units/delete/:id', (req, res) => {
     });
 });
 
+// KELOLA LAGU (SONGS)
+// ==========================================
+
+// 1. TAMPILKAN HALAMAN KELOLA LAGU
+app.get('/admin/albums/:id/songs', (req, res) => {
+    const albumId = req.params.id;
+
+    // Ambil Info Album
+    db.query('SELECT * FROM albums WHERE id = ?', [albumId], (err, resultAlbum) => {
+        if (err) throw err;
+        
+        // Ambil Daftar Lagu di Album ini
+        db.query('SELECT * FROM songs WHERE album_id = ? ORDER BY id ASC', [albumId], (err, resultSongs) => {
+            if (err) throw err;
+            
+            res.render('admin/album_songs', {
+                album: resultAlbum[0],
+                songs: resultSongs
+            });
+        });
+    });
+});
+
+// 2. PROSES TAMBAH LAGU
+app.post('/admin/albums/:id/songs/add', (req, res) => {
+    const albumId = req.params.id;
+    const { judul_lagu } = req.body;
+
+    db.query('INSERT INTO songs (album_id, judul_lagu) VALUES (?, ?)', [albumId, judul_lagu], (err) => {
+        if (err) throw err;
+        // Refresh halaman yang sama (biar langsung muncul lagunya)
+        res.redirect(`/admin/albums/${albumId}/songs`);
+    });
+});
+
+// 3. HAPUS LAGU
+app.get('/admin/songs/delete/:songId/:albumId', (req, res) => {
+    const { songId, albumId } = req.params;
+
+    db.query('DELETE FROM songs WHERE id = ?', [songId], (err) => {
+        if (err) throw err;
+        // Balik lagi ke halaman list lagu album tersebut
+        res.redirect(`/admin/albums/${albumId}/songs`);
+    });
+});
+
 app.listen(port, () => {
     console.log(`🚀 Server berjalan di http://localhost:${port}`);
 });
