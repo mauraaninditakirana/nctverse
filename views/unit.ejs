@@ -98,10 +98,33 @@
         }
 
         /* Style Grid Member */
+        /* INI YANG BIKIN CHENLE KE TENGAH */
         .member-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            display: flex;
+            /* Ganti jadi Flex */
+            justify-content: center;
+            /* KUNCI: Ratakan semua ke tengah */
+            flex-wrap: wrap;
+            /* Supaya kalau penuh dia turun ke bawah */
             gap: 20px;
+            max-width: 1000px;
+            /* Batasi lebar biar tidak terlalu melebar */
+            margin: 0 auto;
+            /* Pastikan grid-nya sendiri ada di tengah */
+        }
+
+        /* KITA PERLU TAMBAH UKURAN KARTU BIAR RAPI */
+        .member-card {
+            width: 180px;
+            /* Kita kunci ukurannya biar seragam */
+            background: #111;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            border: 1px solid #333;
+            transition: 0.3s;
         }
 
         .member-card {
@@ -247,7 +270,8 @@
                 <% albums.forEach(album=> { %>
                     <div class="album-item">
                         <div class="album-header" onclick="toggleAlbum(this)">
-                            <span class="album-title">💿 <%= album.judul %> (<%= new Date(album.tgl_rilis).toDateString() %>)</span>
+                            <span class="album-title">💿 <%= album.judul %> (<%= new
+                                        Date(album.tgl_rilis).toDateString() %>)</span>
                             <span>▼</span>
                         </div>
                         <div class="album-body">
