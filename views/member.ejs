@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= member.nama_panggung %> - Profile</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #e6e6e6;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: #111;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(204, 255, 0, 0.1);
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        /* Bagian Foto */
+        .photo-section {
+            flex: 1;
+            text-align: center;
+            min-width: 300px;
+        }
+        .photo {
+            width: 300px; height: 350px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 2px solid #ccff00;
+            box-shadow: 10px 10px 0px #333;
+        }
+        .btn-download {
+            display: block;
+            margin-top: 20px;
+            background: #ccff00;
+            color: #000;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .btn-download:hover { background: #fff; }
+
+        /* Bagian Info */
+        .info-section {
+            flex: 1.5;
+            min-width: 300px;
+        }
+        h1 {
+            color: #ccff00; font-size: 3rem; margin: 0 0 10px 0;
+            text-transform: uppercase;
+        }
+        .full-name { font-size: 1.2rem; color: #888; margin-bottom: 20px; }
+        
+        /* Tabel Data */
+        .data-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 25px;
+        }
+        .data-table td { padding: 10px 0; border-bottom: 1px solid #222; }
+        .label { color: #666; width: 120px; }
+        .val { color: #fff; font-weight: 500; }
+
+        /* Badge Unit */
+        .badges { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; }
+        .badge {
+            background: #222; color: #fff; padding: 5px 15px;
+            border-radius: 20px; font-size: 0.8rem; border: 1px solid #444;
+        }
+        .badge.active { border-color: #ccff00; color: #ccff00; }
+
+        /* Biografi */
+        .bio {
+            line-height: 1.6; color: #aaa; background: #0a0a0a;
+            padding: 20px; border-radius: 10px; border-left: 3px solid #ccff00;
+        }
+
+        .back-link {
+            display: inline-block; margin-top: 20px; color: #666; text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="photo-section">
+            <img src="/images/<%= member.foto || 'default.jpg' %>" class="photo" alt="Foto Member">
+            
+            <a href="/api/member/<%= member.id %>" class="btn-download">
+                ⬇ DOWNLOAD DATA REPORT (.TXT)
+            </a>
+        </div>
+
+        <div class="info-section">
+            <h1><%= member.nama_panggung %></h1>
+            <div class="full-name"><%= member.nama_lengkap %></div>
+
+            <div class="badges">
+                <% units.forEach(u => { %>
+                    <span class="badge active"><%= u.nama_unit %></span>
+                <% }) %>
+            </div>
+
+            <table class="data-table">
+                <tr><td class="label">Tanggal Lahir</td><td class="val"><%= member.tgl_lahir %></td></tr>
+                <tr><td class="label">Asal</td><td class="val"><%= member.asal_negara %></td></tr>
+                <tr><td class="label">Posisi</td><td class="val"><%= member.posisi %></td></tr>
+            </table>
+
+            <div class="bio">
+                <strong>Biography:</strong><br>
+                <%= member.biografi || 'Belum ada data cerita.' %>
+            </div>
+
+            <a href="javascript:history.back()" class="back-link">← Kembali</a>
+        </div>
+
+    </div>
+
+</body>
+</html>
