@@ -16,6 +16,34 @@
             padding: 0;
         }
 
+        /* --- UPDATE STYLE TOMBOL BACK (PILL SHAPE) --- */
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            
+            /* Gaya Tombol Kapsul Neon */
+            display: inline-block;
+            background-color: #000;      /* Latar Hitam */
+            color: #ccff00;              /* Teks Hijau Neon */
+            border: 1px solid #ccff00;   /* Garis Pinggir Neon */
+            padding: 10px 25px;
+            border-radius: 50px;         /* Bikin Bulat Kapsul */
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .back-link:hover {
+            background-color: #ccff00;   /* Pas disorot jadi Hijau */
+            color: #000;                 /* Teks jadi Hitam */
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.5); /* Efek Glowing */
+            transform: translateX(5px);  /* Gerak dikit */
+        }
+        /* ------------------------------------------- */
+
         /* Header Unit */
         .hero {
             background: linear-gradient(0deg, #050505 0%, rgba(30, 30, 30, 0.8) 100%);
@@ -127,17 +155,6 @@
             transition: 0.3s;
         }
 
-        .member-card {
-            background: #111;
-            padding: 15px;
-            text-align: center;
-            border-radius: 10px;
-            text-decoration: none;
-            color: white;
-            border: 1px solid #333;
-            transition: 0.3s;
-        }
-
         .member-card:hover {
             border-color: #ccff00;
             transform: translateY(-5px);
@@ -210,14 +227,6 @@
                 opacity: 1;
             }
         }
-
-        .back-link {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #fff;
-            text-decoration: none;
-        }
     </style>
 </head>
 
@@ -271,7 +280,7 @@
                     <div class="album-item">
                         <div class="album-header" onclick="toggleAlbum(this)">
                             <span class="album-title">💿 <%= album.judul %> (<%= new
-                                        Date(album.tgl_rilis).toDateString() %>)</span>
+                                    Date(album.tgl_rilis).toDateString() %>)</span>
                             <span>▼</span>
                         </div>
                         <div class="album-body">
