@@ -442,6 +442,57 @@ app.post('/admin/albums/update/:id', (req, res) => {
     });
 });
 
+
+// KELOLA UNITS CRUD
+// 1. LIST UNITS
+app.get('/admin/units', (req, res) => {
+    db.query('SELECT * FROM units', (err, results) => {
+        if (err) throw err;
+        res.render('admin/units', { units: results });
+    });
+});
+
+// 2. TAMBAH UNIT (Form & Proses)
+app.get('/admin/units/add', (req, res) => {
+    res.render('admin/unit_form');
+});
+
+app.post('/admin/units/add', (req, res) => {
+    const { nama_unit, deskripsi, logo } = req.body;
+    db.query('INSERT INTO units (nama_unit, deskripsi, logo) VALUES (?, ?, ?)', 
+        [nama_unit, deskripsi, logo], (err) => {
+        if (err) throw err;
+        res.redirect('/admin/units');
+    });
+});
+
+// 3. EDIT UNIT (Form & Proses)
+app.get('/admin/units/edit/:id', (req, res) => {
+    db.query('SELECT * FROM units WHERE id = ?', [req.params.id], (err, result) => {
+        if (err) throw err;
+        res.render('admin/unit_edit', { unit: result[0] });
+    });
+});
+
+app.post('/admin/units/update/:id', (req, res) => {
+    const { nama_unit, deskripsi, logo } = req.body;
+    db.query('UPDATE units SET nama_unit=?, deskripsi=?, logo=? WHERE id=?', 
+        [nama_unit, deskripsi, logo, req.params.id], (err) => {
+        if (err) throw err;
+        res.redirect('/admin/units');
+    });
+});
+
+// 4. HAPUS UNIT
+app.get('/admin/units/delete/:id', (req, res) => {
+    // Hapus unit langsung (Hati-hati, data member/album yg nyangkut mungkin error kalau tidak dihandle)
+    // Untuk skripsi/project sederhana, langsung delete biasanya oke.
+    db.query('DELETE FROM units WHERE id = ?', [req.params.id], (err) => {
+        if (err) throw err;
+        res.redirect('/admin/units');
+    });
+});
+
 app.listen(port, () => {
     console.log(`🚀 Server berjalan di http://localhost:${port}`);
 });
