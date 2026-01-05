@@ -1,42 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Detail User</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail User - NCTverse</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f4; padding: 40px; }
-        .card { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h2 { border-bottom: 2px solid #ccff00; padding-bottom: 10px; }
-        .row { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .label { font-weight: bold; display: block; color: #555; }
-        .api-box { background: #000; color: #ccff00; padding: 10px; font-family: monospace; border-radius: 5px; margin-top: 5px; word-break: break-all;}
-        .btn-toggle { display: block; width: 100%; text-align: center; padding: 15px; text-decoration: none; color: white; font-weight: bold; border-radius: 5px; margin-top: 20px;}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 40px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h1 { margin-top: 0; color: #333; }
+        
+        /* CARD STYLE */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .row {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            display: flex;
+        }
+        .label {
+            font-weight: bold;
+            width: 180px;
+            color: #555;
+        }
+        .value { color: #000; font-weight: 500; }
+
+        /* TABEL HISTORY KEY */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+        }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background-color: #111; color: #ccff00; font-size: 0.9rem; }
+        
+        .key-code {
+            font-family: monospace;
+            background: #eee;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        /* STATUS BADGE */
+        .badge { padding: 5px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: bold; }
+        .badge-active { background: #d4edda; color: #155724; }
+        .badge-inactive { background: #f8d7da; color: #721c24; }
+
+        /* TOMBOL TOGGLE */
+        .btn-toggle {
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            display: inline-block;
+        }
         .bg-red { background: #dc3545; }
         .bg-green { background: #28a745; }
+        .bg-red:hover { background: #c82333; }
+        .bg-green:hover { background: #218838; }
+
     </style>
 </head>
 <body>
-    <div class="card">
-        <a href="/admin/users" style="text-decoration:none;">← Kembali</a>
-        <h2>👤 Detail Pengguna</h2>
 
-        <div class="row"><span class="label">Nama:</span> <%= user.nama_lengkap %></div>
-        <div class="row"><span class="label">Email:</span> <%= user.email %></div>
-        <div class="row"><span class="label">Password:</span> <%= user.password %></div>
-        <div class="row"><span class="label">Bergabung:</span> <%= user.created_at %></div>
+    <%- include('../partials/sidebar') %>
 
-        <div class="row" style="border:none;">
-            <span class="label">🔑 API KEY:</span>
-            <div class="api-box"><%= user.api_key || 'BELUM GENERATE' %></div>
+    <div class="content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h1>🔍 Detail & History User</h1>
+            <a href="/admin/users" style="text-decoration:none; color:#666; font-weight:bold;">← Kembali ke Daftar</a>
         </div>
 
-        <hr>
-        <p style="text-align:center;">Status Akun: <strong><%= user.status.toUpperCase() %></strong></p>
+        <div class="card">
+            <h3 style="margin-top:0; color:#333; border-bottom:2px solid #ccff00; padding-bottom:10px; display:inline-block;">👤 Data Personal</h3>
+            
+            <div class="row">
+                <span class="label">Nama Lengkap</span>
+                <span class="value">: <%= user.nama_lengkap %></span>
+            </div>
+            <div class="row">
+                <span class="label">Email Login</span>
+                <span class="value">: <%= user.email %></span>
+            </div>
+            <div class="row">
+                <span class="label">Password</span>
+                <span class="value">: <%= user.password %></span>
+            </div>
+            <div class="row" style="border:none;">
+                <span class="label">Bergabung Sejak</span>
+                <span class="value">: <%= user.created_at %></span>
+            </div>
+        </div>
 
-        <% if (user.status == 'active') { %>
-            <a href="/admin/users/toggle/<%= user.id %>/active" class="btn-toggle bg-red">⛔ NON-AKTIFKAN USER INI</a>
-        <% } else { %>
-            <a href="/admin/users/toggle/<%= user.id %>/inactive" class="btn-toggle bg-green">✅ AKTIFKAN KEMBALI</a>
-        <% } %>
+        <div class="card">
+            <h3 style="margin-top:0; color:#333; border-bottom:2px solid #007bff; padding-bottom:10px; display:inline-block;">🔑 Riwayat API Key</h3>
+            <p style="color:#666; margin-bottom:20px;">Daftar semua kunci yang pernah dibuat oleh user ini. Admin dapat mematikan kunci tertentu jika disalahgunakan.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu Dibuat</th>
+                        <th>API Key String</th>
+                        <th>Status</th>
+                        <th>Kontrol Admin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(keys.length === 0) { %>
+                        <tr><td colspan="4" style="text-align:center; padding:20px;">User ini belum pernah generate API Key.</td></tr>
+                    <% } %>
+
+                    <% keys.forEach(k => { %>
+                    <tr>
+                        <td><%= new Date(k.created_at).toLocaleString() %></td>
+                        <td><span class="key-code"><%= k.key_string %></span></td>
+                        <td>
+                            <% if(k.status == 'active') { %>
+                                <span class="badge badge-active">AKTIF</span>
+                            <% } else { %>
+                                <span class="badge badge-inactive">NON-AKTIF</span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if(k.status == 'active') { %>
+                                <a href="/admin/keys/toggle/<%= k.id %>/<%= user.id %>" class="btn-toggle bg-red">
+                                    ⛔ Matikan Key Ini
+                                </a>
+                            <% } else { %>
+                                <a href="/admin/keys/toggle/<%= k.id %>/<%= user.id %>" class="btn-toggle bg-green">
+                                    ✅ Hidupkan Kembali
+                                </a>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
     </div>
+
 </body>
 </html>

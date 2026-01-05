@@ -40,17 +40,23 @@ app.use(session({
 
 // Cek Admin
 const cekAdmin = (req, res, next) => {
-    if (req.session.role === 'admin') next();
-    else res.redirect('/login');
+    if (req.session.role === 'admin') {
+        next();
+    } else {
+        res.redirect('/login');
+    }
 };
 
 // Cek User Developer
 const cekUser = (req, res, next) => {
-    if (req.session.role === 'user') next();
-    else res.redirect('/developer/login');
+    if (req.session.role === 'user') {
+        next();
+    } else {
+        res.redirect('/developer/login');
+    }
 };
 
-// Cek API Key (Untuk request data)
+// Cek API Key (UPDATE: Cek ke tabel api_keys)
 const cekApiKey = (req, res, next) => {
     const key = req.query.key; 
 
@@ -58,35 +64,42 @@ const cekApiKey = (req, res, next) => {
         return res.status(401).json({ status: "error", message: "API Key diperlukan!" });
     }
 
-    db.query('SELECT * FROM api_users WHERE api_key = ?', [key], (err, results) => {
+    // Cek di tabel history key
+    db.query('SELECT * FROM api_keys WHERE key_string = ?', [key], (err, results) => {
         if (err) return res.status(500).json({ status: "error", message: "Database Error" });
         
+        // 1. Cek apakah key ada?
         if (results.length === 0) {
             return res.status(403).json({ status: "error", message: "API Key tidak valid." });
         }
 
+        // 2. Cek apakah status key tersebut aktif?
         if (results[0].status === 'inactive') {
-            return res.status(403).json({ status: "error", message: "API Key Anda telah DINONAKTIFKAN oleh Admin." });
+            return res.status(403).json({ status: "error", message: "API Key ini telah DINONAKTIFKAN oleh Admin." });
         }
 
+        // Lanjut jika aman
         next(); 
     });
 };
 
 
 // ==========================================
-// 4. ROUTE PUBLIC & DEVELOPER
+// 4. ROUTE PUBLIC & AUTH
 // ==========================================
 
 app.get('/', (req, res) => {
     res.render('index');
 });
 
-// --- Register & Login Developer ---
-app.get('/developer/register', (req, res) => res.render('user/register'));
+// --- Register Developer ---
+app.get('/developer/register', (req, res) => {
+    res.render('user/register');
+});
 
 app.post('/developer/register', (req, res) => {
     const { email, password, nama_lengkap } = req.body;
+    // Insert User Baru (Key belum ada)
     db.query('INSERT INTO api_users (email, password, nama_lengkap) VALUES (?, ?, ?)', 
     [email, password, nama_lengkap], (err) => {
         if(err) return res.send("Email error/sudah terdaftar.");
@@ -94,7 +107,10 @@ app.post('/developer/register', (req, res) => {
     });
 });
 
-app.get('/developer/login', (req, res) => res.render('user/login'));
+// --- Login Developer ---
+app.get('/developer/login', (req, res) => {
+    res.render('user/login');
+});
 
 app.post('/developer/login', (req, res) => {
     const { email, password } = req.body;
@@ -110,17 +126,38 @@ app.post('/developer/login', (req, res) => {
     });
 });
 
-// --- Dashboard User ---
+// --- Dashboard Developer (UPDATE) ---
 app.get('/developer/dashboard', cekUser, (req, res) => {
-    db.query('SELECT * FROM api_users WHERE id = ?', [req.session.userId], (err, result) => {
-        res.render('user/dashboard', { user: result[0] });
+    // 1. Ambil data user
+    db.query('SELECT * FROM api_users WHERE id = ?', [req.session.userId], (err, userRes) => {
+        if(userRes.length === 0) return res.redirect('/developer/login');
+
+        // 2. Ambil Key TERBARU milik user ini (untuk ditampilkan di dashboard utama)
+        db.query('SELECT * FROM api_keys WHERE user_id = ? ORDER BY id DESC LIMIT 1', [req.session.userId], (err, keyRes) => {
+            const userData = userRes[0];
+            
+            // Inject data key ke object user biar view tidak error
+            if (keyRes.length > 0) {
+                userData.api_key = keyRes[0].key_string;
+                userData.status = keyRes[0].status; // status key terakhir
+            } else {
+                userData.api_key = null;
+                userData.status = 'active'; // Default user status
+            }
+
+            res.render('user/dashboard', { user: userData });
+        });
     });
 });
 
-// --- Generate API Key ---
+// --- Generate Key (UPDATE: Insert ke tabel History) ---
 app.post('/developer/generate-key', cekUser, (req, res) => {
     const newKey = 'nct_' + crypto.randomBytes(16).toString('hex');
-    db.query('UPDATE api_users SET api_key = ? WHERE id = ?', [newKey, req.session.userId], (err) => {
+    
+    // Insert ke tabel api_keys
+    db.query('INSERT INTO api_keys (user_id, key_string, status) VALUES (?, ?, "active")', 
+    [req.session.userId, newKey], (err) => {
+        if(err) console.log(err);
         res.redirect('/developer/dashboard');
     });
 });
@@ -134,7 +171,6 @@ app.get('/developer/logout', (req, res) => {
 // 5. API ENDPOINTS (DATA PROVIDER)
 // ==========================================
 
-// A. Ambil Semua Member (JSON)
 app.get('/api/v1/members', cekApiKey, (req, res) => {
     db.query('SELECT * FROM members', (err, results) => {
         res.json({
@@ -145,7 +181,6 @@ app.get('/api/v1/members', cekApiKey, (req, res) => {
     });
 });
 
-// B. Ambil Detail Member (JSON)
 app.get('/api/v1/member/:id', cekApiKey, (req, res) => {
     db.query('SELECT * FROM members WHERE id = ?', [req.params.id], (err, results) => {
         if(results.length === 0) return res.status(404).json({status: "fail", message: "Not Found"});
@@ -153,7 +188,6 @@ app.get('/api/v1/member/:id', cekApiKey, (req, res) => {
     });
 });
 
-// C. DOWNLOAD LAPORAN TXT
 app.get('/api/v1/download/member/:id', cekApiKey, (req, res) => {
     const id = req.params.id;
     db.query('SELECT * FROM members WHERE id = ?', [id], (err, results) => {
@@ -191,8 +225,11 @@ Generated by NCT API Center
 
 // Login Admin
 app.get('/login', (req, res) => {
-    if (req.session.role === 'admin') res.redirect('/admin');
-    else res.render('login', {error: null});
+    if (req.session.role === 'admin') {
+        res.redirect('/admin');
+    } else {
+        res.render('login', {error: null});
+    }
 });
 
 app.post('/login', (req, res) => {
@@ -209,7 +246,6 @@ app.post('/login', (req, res) => {
 
 // --- DASHBOARD ADMIN ---
 app.get('/admin', cekAdmin, (req, res) => {
-    // Statistik: Members, Units, dan User API
     const sqlCount = `SELECT 
         (SELECT COUNT(*) FROM units) as totalUnits, 
         (SELECT COUNT(*) FROM members) as totalMembers, 
@@ -217,7 +253,6 @@ app.get('/admin', cekAdmin, (req, res) => {
 
     db.query(sqlCount, (err, results) => {
         if(err) throw err;
-        // PENTING: Kirim page: 'dashboard' untuk sidebar
         res.render('admin/dashboard', {
             totalUnits: results[0].totalUnits,
             totalMembers: results[0].totalMembers,
@@ -227,37 +262,70 @@ app.get('/admin', cekAdmin, (req, res) => {
     });
 });
 
-// --- FITUR 1: MANAJEMEN USER API (PENGGANTI ALBUM) ---
+// ==========================================
+// FITUR: MANAJEMEN USER API (CRUD & HISTORY)
+// ==========================================
 
-// List Semua User
+// 1. List Semua User
 app.get('/admin/users', cekAdmin, (req, res) => {
     db.query('SELECT * FROM api_users ORDER BY id DESC', (err, results) => {
-        // PENTING: Kirim page: 'users'
         res.render('admin/users', { users: results, page: 'users' });
     });
 });
 
-// Detail User
+// 2. Detail User & HISTORY KEY
 app.get('/admin/users/detail/:id', cekAdmin, (req, res) => {
-    db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, result) => {
-        res.render('admin/user_detail', { user: result[0], page: 'users' });
+    // Ambil data user
+    db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, userRes) => {
+        // Ambil SEMUA key milik user ini (History)
+        db.query('SELECT * FROM api_keys WHERE user_id = ? ORDER BY created_at DESC', [req.params.id], (err, keysRes) => {
+            res.render('admin/user_detail', { 
+                user: userRes[0], 
+                keys: keysRes, // Kirim daftar key ke view
+                page: 'users' 
+            });
+        });
     });
 });
 
-// Toggle Status (On/Off Key)
-app.get('/admin/users/toggle/:id/:status', cekAdmin, (req, res) => {
-    const newStatus = req.params.status === 'active' ? 'inactive' : 'active';
-    db.query('UPDATE api_users SET status = ? WHERE id = ?', [newStatus, req.params.id], () => {
-        res.redirect(`/admin/users/detail/${req.params.id}`);
+// 3. Form Edit User
+app.get('/admin/users/edit/:id', cekAdmin, (req, res) => {
+    db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, r) => {
+        res.render('admin/user_edit', { user: r[0], page: 'users' });
+    });
+});
+
+// 4. Proses Update User
+app.post('/admin/users/update/:id', cekAdmin, (req, res) => {
+    const { nama_lengkap, email, password } = req.body;
+    db.query('UPDATE api_users SET nama_lengkap=?, email=?, password=? WHERE id=?', 
+    [nama_lengkap, email, password, req.params.id], (err) => {
+        res.redirect('/admin/users');
+    });
+});
+
+// 5. Toggle Status API KEY (Berdasarkan ID KEY, bukan ID User)
+app.get('/admin/keys/toggle/:keyId/:userId', cekAdmin, (req, res) => {
+    // Cek status sekarang
+    db.query('SELECT status FROM api_keys WHERE id = ?', [req.params.keyId], (err, r) => {
+        const currentStatus = r[0].status;
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        
+        // Update status di tabel api_keys
+        db.query('UPDATE api_keys SET status = ? WHERE id = ?', [newStatus, req.params.keyId], () => {
+            // Redirect balik ke detail user
+            res.redirect(`/admin/users/detail/${req.params.userId}`);
+        });
     });
 });
 
 
-// --- FITUR 2: CRUD MEMBERS ---
+// ==========================================
+// FITUR: CRUD MEMBERS & UNITS
+// ==========================================
 
 app.get('/admin/members', cekAdmin, (req, res) => {
     db.query('SELECT * FROM members ORDER BY id DESC', (err, r) => {
-        // PENTING: Kirim page: 'members'
         res.render('admin/members', { members: r, page: 'members' });
     });
 });
@@ -298,12 +366,8 @@ app.get('/admin/members/delete/:id', cekAdmin, (req, res) => {
     });
 });
 
-
-// --- FITUR 3: CRUD UNITS ---
-
 app.get('/admin/units', cekAdmin, (req, res) => {
     db.query('SELECT * FROM units', (e, r) => {
-        // PENTING: Kirim page: 'units'
         res.render('admin/units', { units: r, page: 'units' });
     });
 });
@@ -322,6 +386,20 @@ app.post('/admin/units/add', cekAdmin, (req, res) => {
 
 app.get('/admin/units/delete/:id', cekAdmin, (req, res) => {
     db.query('DELETE FROM units WHERE id = ?', [req.params.id], () => {
+        res.redirect('/admin/units');
+    });
+});
+
+app.get('/admin/units/edit/:id', cekAdmin, (req, res) => {
+    db.query('SELECT * FROM units WHERE id = ?', [req.params.id], (e, r) => {
+        res.render('admin/unit_edit', { unit: r[0], page: 'units' });
+    });
+});
+
+app.post('/admin/units/update/:id', cekAdmin, (req, res) => {
+    const { nama_unit, deskripsi, logo } = req.body;
+    db.query('UPDATE units SET nama_unit=?, deskripsi=?, logo=? WHERE id=?', 
+    [nama_unit, deskripsi, logo, req.params.id], () => {
         res.redirect('/admin/units');
     });
 });

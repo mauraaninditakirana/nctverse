@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit User</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; margin: 0; background: #f4f4f4; }
+        .content { margin-left: 250px; padding: 40px; width: 100%; }
+        .form-card { background: white; padding: 30px; border-radius: 10px; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        input { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;}
+        label { font-weight: bold; color: #333; }
+        button { background: #ccff00; border: none; padding: 12px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #b3e600; }
+        a { text-decoration: none; color: #666; margin-left: 15px; }
+    </style>
+</head>
+<body>
+    <%- include('../partials/sidebar') %>
+    <div class="content">
+        <h1>✏️ Edit Data User</h1>
+        <div class="form-card">
+            <form action="/admin/users/update/<%= user.id %>" method="POST">
+                <label>Nama Lengkap</label>
+                <input type="text" name="nama_lengkap" value="<%= user.nama_lengkap %>" required>
+
+                <label>Email</label>
+                <input type="email" name="email" value="<%= user.email %>" required>
+
+                <label>Password</label>
+                <input type="text" name="password" value="<%= user.password %>" required>
+
+                <button type="submit">💾 Simpan Perubahan</button>
+                <a href="/admin/users">Batal</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

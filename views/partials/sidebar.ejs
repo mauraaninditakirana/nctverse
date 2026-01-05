@@ -6,9 +6,9 @@
         display: flex;
         flex-direction: column;
         padding-top: 20px;
-        flex-shrink: 0; /* Mencegah sidebar mengecil */
-        height: 100vh; /* Full tinggi layar */
-        position: fixed; /* Supaya diam saat discroll */
+        flex-shrink: 0;
+        height: 100vh;
+        position: fixed;
         left: 0; top: 0;
     }
 
@@ -39,7 +39,7 @@
         color: #fff;
     }
 
-    /* KELAS ACTIVE (Otomatis menyala) */
+    /* KELAS ACTIVE */
     .menu-item.active {
         background-color: #111;
         color: #ccff00;
@@ -47,8 +47,10 @@
         font-weight: bold;
     }
 
+    /* TOMBOL LOGOUT (UPDATED) */
     .logout-btn {
-        margin-top: auto; /* Dorong ke paling bawah */
+        /* Hapus margin-top: auto; supaya tidak mentok bawah */
+        margin-top: 50px; /* Beri jarak secukupnya dari menu terakhir */
         background-color: #d9534f;
         color: white;
         text-align: center;
@@ -56,6 +58,7 @@
         text-decoration: none;
         font-weight: bold;
         border: none;
+        transition: 0.3s;
     }
     .logout-btn:hover { background-color: #c9302c; }
 </style>
@@ -63,19 +66,19 @@
 <div class="sidebar">
     <div class="brand">NCTVERSE<br><small style="font-size:0.7rem; color:white; letter-spacing:0;">Admin Panel</small></div>
     
-    <a href="/admin" class="menu-item <%= page === 'dashboard' ? 'active' : '' %>">
+    <a href="/admin" class="menu-item <%= typeof page !== 'undefined' && page === 'dashboard' ? 'active' : '' %>">
         🏠 Dashboard
     </a>
 
-    <a href="/admin/members" class="menu-item <%= page === 'members' ? 'active' : '' %>">
+    <a href="/admin/members" class="menu-item <%= typeof page !== 'undefined' && page === 'members' ? 'active' : '' %>">
         👤 Kelola Members
     </a>
 
-    <a href="/admin/users" class="menu-item <%= page === 'users' ? 'active' : '' %>">
+    <a href="/admin/users" class="menu-item <%= typeof page !== 'undefined' && page === 'users' ? 'active' : '' %>">
         👥 Kelola User API
     </a>
 
-    <a href="/admin/units" class="menu-item <%= page === 'units' ? 'active' : '' %>">
+    <a href="/admin/units" class="menu-item <%= typeof page !== 'undefined' && page === 'units' ? 'active' : '' %>">
         🏢 Kelola Units
     </a>
 

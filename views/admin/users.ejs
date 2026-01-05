@@ -12,9 +12,9 @@
             display: flex;
         }
 
-        /* AREA KONTEN (Sebelah Kanan Sidebar) */
+        /* KONTEN UTAMA */
         .content {
-            margin-left: 250px; /* Ruang untuk sidebar fixed */
+            margin-left: 250px; /* Memberi ruang untuk sidebar */
             padding: 40px;
             width: 100%;
             box-sizing: border-box;
@@ -30,7 +30,7 @@
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         th, td {
@@ -49,27 +49,27 @@
 
         tr:hover { background-color: #f9f9f9; }
 
-        /* STATUS BADGE */
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .active { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .inactive { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
         /* TOMBOL AKSI */
-        .btn-detail {
-            background-color: #007bff;
-            color: white;
-            padding: 8px 15px;
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
             text-decoration: none;
             border-radius: 5px;
+            font-size: 0.85rem;
             font-weight: bold;
-            font-size: 0.9rem;
+            color: white;
+            margin-right: 5px;
             transition: 0.3s;
+        }
+
+        .btn-edit {
+            background-color: #ffc107; /* Orange/Kuning */
+            color: #333;
+        }
+        .btn-edit:hover { background-color: #e0a800; }
+
+        .btn-detail {
+            background-color: #007bff; /* Biru */
         }
         .btn-detail:hover { background-color: #0056b3; }
 
@@ -80,8 +80,8 @@
     <%- include('../partials/sidebar') %>
 
     <div class="content">
-        <h1>👥 Daftar Pengguna API</h1>
-        <p style="color:#666;">Berikut adalah developer yang mendaftar untuk menggunakan API NCTverse.</p>
+        <h1>👥 Daftar Developer (User API)</h1>
+        <p style="color:#666;">Kelola akun developer yang terdaftar di sistem API NCTverse.</p>
 
         <table>
             <thead>
@@ -89,13 +89,12 @@
                     <th style="width: 50px;">ID</th>
                     <th>Nama Lengkap</th>
                     <th>Email</th>
-                    <th>Status Kunci</th>
-                    <th>Aksi</th>
+                    <th>Aksi Admin</th>
                 </tr>
             </thead>
             <tbody>
                 <% if(users.length === 0) { %>
-                    <tr><td colspan="5" style="text-align:center; padding:30px;">Belum ada user yang mendaftar.</td></tr>
+                    <tr><td colspan="4" style="text-align:center; padding:30px;">Belum ada user yang mendaftar.</td></tr>
                 <% } %>
 
                 <% users.forEach(u => { %>
@@ -104,14 +103,9 @@
                     <td><strong><%= u.nama_lengkap %></strong></td>
                     <td><%= u.email %></td>
                     <td>
-                        <% if(u.status == 'active') { %>
-                            <span class="status-badge active">✅ AKTIF</span>
-                        <% } else { %>
-                            <span class="status-badge inactive">🚫 NON-AKTIF</span>
-                        <% } %>
-                    </td>
-                    <td>
-                        <a href="/admin/users/detail/<%= u.id %>" class="btn-detail">🔍 Lihat Detail</a>
+                        <a href="/admin/users/edit/<%= u.id %>" class="btn btn-edit">✏️ Edit Data</a>
+                        
+                        <a href="/admin/users/detail/<%= u.id %>" class="btn btn-detail">🔍 Lihat Key & History</a>
                     </td>
                 </tr>
                 <% }) %>
