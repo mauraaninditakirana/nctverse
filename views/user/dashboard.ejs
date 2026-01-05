@@ -243,7 +243,7 @@
     <div class="container">
         <div class="header">
             <div>
-                <h2>👋 Developer Dashboard</h2>
+                <h2>Halo NCTzen</h2>
                 <div class="sub-text">Selamat datang, <strong><%= user.nama_lengkap %></strong></div>
             </div>
             <a href="/developer/logout" class="btn-logout">Logout</a>
@@ -252,15 +252,15 @@
         <hr>
 
         <div class="key-section">
-            <h3 style="margin-top:0;">🔑 API Key Anda</h3>
+            <h3 style="margin-top:0;">API Key saat ini</h3>
             
             <% if (user.api_key) { %>
                 <div class="key-box"><%= user.api_key %></div>
                 <p>Status Key: 
                     <% if(user.status == 'active') { %>
-                        <span class="status-active">✅ AKTIF</span>
+                        <span class="status-active">AKTIF</span>
                     <% } else { %>
-                        <span class="status-inactive">❌ NON-AKTIF</span>
+                        <span class="status-inactive">NON-AKTIF</span>
                     <% } %>
                 </p>
                 <p style="color:#888; font-size:0.9rem;">Gunakan key ini untuk mengakses endpoint <code>/api/v1/members</code></p>
@@ -270,18 +270,18 @@
 
             <form action="/developer/generate-key" method="POST">
                 <button type="submit" class="btn-gen">
-                    ⚡ <%= user.api_key ? 'RESET / GANTI KEY' : 'GENERATE NEW KEY' %>
+                     <%= user.api_key ? 'RESET / GANTI KEY' : 'GENERATE NEW KEY' %>
                 </button>
             </form>
         </div>
 
         <div class="test-area">
-            <h3 style="margin-top:0;">🧪 API Playground (Live Test)</h3>
-            <p style="color:#666;">Salin API Key di atas, lalu tempel di kolom bawah untuk melihat data:</p>
+            <h3 style="margin-top:0;">API AREA</h3>
+            <p style="color:#666;">Salin API Key di atas, lalu tempel disini untuk melihat data:</p>
             
             <div class="input-group">
                 <input type="text" id="inputKey" placeholder="Tempel API Key di sini..." value="">
-                <button onclick="testApi()" class="btn-test">🔍 LIHAT DATA</button>
+                <button onclick="testApi()" class="btn-test">LIHAT DATA</button>
             </div>
 
             <div id="resultContainer"></div>
@@ -335,14 +335,14 @@
                 if(data.status === 'error') {
                     container.innerHTML = `
                         <div style="background:#ffe6e6; color:red; padding:15px; border-radius:8px; margin-top:20px; border:1px solid red; text-align:center;">
-                            ❌ <strong>AKSES DITOLAK:</strong> ${data.message}
+                             <strong>AKSES DITOLAK:</strong> ${data.message}
                         </div>
                     `;
                 } else {
                     // Jika Sukses, Render Kartu
                     let htmlContent = `
                         <div style="margin-top:20px; text-align:center; color:green;">
-                            ✅ Berhasil memuat <strong>${data.total_data}</strong> data member.
+                            Berhasil memuat <strong>${data.total_data}</strong> data member.
                         </div>
                         <div class="result-grid">
                     `;

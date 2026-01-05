@@ -117,7 +117,7 @@
 
         <div class="card">
             <h3 style="margin-top:0; color:#333; border-bottom:2px solid #007bff; padding-bottom:10px; display:inline-block;">🔑 Riwayat API Key</h3>
-            <p style="color:#666; margin-bottom:20px;">Daftar semua kunci yang pernah dibuat oleh user ini. Admin dapat mematikan kunci tertentu jika disalahgunakan.</p>
+            <p style="color:#666; margin-bottom:20px;">Daftar API Key User</p>
 
             <table>
                 <thead>
@@ -147,11 +147,11 @@
                         <td>
                             <% if(k.status == 'active') { %>
                                 <a href="/admin/keys/toggle/<%= k.id %>/<%= user.id %>" class="btn-toggle bg-red">
-                                    ⛔ Matikan Key Ini
+                                    Matikan Key
                                 </a>
                             <% } else { %>
                                 <a href="/admin/keys/toggle/<%= k.id %>/<%= user.id %>" class="btn-toggle bg-green">
-                                    ✅ Hidupkan Kembali
+                                    Aktifkan Key
                                 </a>
                             <% } %>
                         </td>
