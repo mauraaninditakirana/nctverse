@@ -9,140 +9,88 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            display: flex;
-            height: 100vh;
+            display: flex; /* Layout Flexbox */
         }
 
-        /* --- SIDEBAR (MENU KIRI) --- */
-        .sidebar {
-            width: 250px;
-            background-color: #050505;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            padding-top: 20px;
-        }
-
-        .brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            color: #ccff00;
-            margin-bottom: 40px;
-            letter-spacing: 2px;
-        }
-
-        .menu-item {
-            padding: 15px 25px;
-            color: #ccc;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: 0.3s;
-            font-size: 1rem;
-        }
-
-        .menu-item:hover, .menu-item.active {
-            background-color: #ccff00;
-            color: #000;
-            font-weight: bold;
-        }
-
-        .logout-btn {
-            margin-top: auto;
-            background-color: #d9534f;
-            color: white;
-            text-align: center;
-            padding: 15px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .logout-btn:hover { background-color: #c9302c; }
-
-
-        /* --- CONTENT (KANAN) --- */
+        /* AREA KONTEN (Sebelah Kanan Sidebar) */
         .content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
+            margin-left: 250px; /* Memberi ruang untuk sidebar fixed */
+            padding: 40px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        h1 { color: #333; margin-bottom: 30px; }
+        h1 { margin-top: 0; color: #333; }
 
-        /* KARTU STATISTIK */
-        .stats-container {
+        /* GRID KARTU STATISTIK */
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            gap: 25px;
+            margin-top: 30px;
         }
 
         .card {
             background: white;
-            padding: 25px;
-            border-radius: 10px;
+            padding: 30px;
+            border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border-left: 5px solid #ccff00;
+            border-left: 6px solid #ccc;
+            transition: transform 0.3s;
         }
 
-        .card h3 { margin: 0; color: #666; font-size: 1rem; }
-        .card .number { font-size: 2.5rem; font-weight: bold; color: #333; margin: 10px 0 0 0; }
-        
-        .card-icon { font-size: 2rem; margin-bottom: 10px; }
+        .card:hover { transform: translateY(-5px); }
+
+        .card h3 {
+            margin: 0;
+            color: #666;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0 0 0;
+        }
+
+        /* Warna Khusus Tiap Kartu */
+        .card-members { border-left-color: #ccff00; }
+        .card-units { border-left-color: #333; }
+        .card-users { border-left-color: #007bff; }
+
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="brand">NCTVERSE<br><small style="font-size:0.8rem; color:white;">ADMIN PANEL</small></div>
-        
-        <a href="/admin" class="menu-item active">
-            🏠 Dashboard
-        </a>
-
-        <a href="/admin/members" class="menu-item">
-            👤 Kelola Members
-        </a>
-
-        <a href="/admin/users" class="menu-item">
-            👥 Kelola User API
-        </a>
-
-        <a href="/admin/units" class="menu-item">
-            🏢 Kelola Units
-        </a>
-
-        <a href="/" target="_blank" class="menu-item">
-            🌍 Lihat Website
-        </a>
-
-        <a href="/logout" class="logout-btn">Logout</a>
-    </div>
+    <%- include('../partials/sidebar') %>
 
     <div class="content">
-        <h1>Dashboard Overview</h1>
+        <h1>👋 Dashboard Overview</h1>
+        <p style="color:#666;">Selamat datang di panel admin NCT API Center.</p>
 
-        <div class="stats-container">
-            <div class="card">
-                <div class="card-icon">🎤</div>
+        <div class="stats-grid">
+            
+            <div class="card card-members">
                 <h3>Total Members</h3>
                 <p class="number"><%= totalMembers %></p>
             </div>
 
-            <div class="card">
-                <div class="card-icon">🏢</div>
+            <div class="card card-units">
                 <h3>Total Units</h3>
                 <p class="number"><%= totalUnits %></p>
             </div>
 
-            <div class="card" style="border-left-color: #007bff;">
-                <div class="card-icon">👥</div>
+            <div class="card card-users">
                 <h3>User API Terdaftar</h3>
                 <p class="number"><%= totalUsers %></p>
             </div>
+
         </div>
     </div>
 

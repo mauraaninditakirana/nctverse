@@ -1,186 +1,140 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Units - Admin</title>
+    <title>Kelola Units - NCTverse</title>
     <style>
-        /* Style Dasar */
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
             display: flex;
-            height: 100vh;
-            background: #f4f4f4;
-        }
-
-        .sidebar {
-            width: 250px;
-            background: #111;
-            color: white;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar h2 {
-            color: #ccff00;
-            margin-bottom: 40px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .menu a {
-            display: block;
-            padding: 15px;
-            color: #aaa;
-            text-decoration: none;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-
-        .menu a:hover,
-        .menu a.active {
-            background: #333;
-            color: white;
-        }
-
-        /* Style Tombol Logout */
-        .logout {
-            margin-top: auto;
-            background: #cc0000;
-            color: white !important;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .logout:hover {
-            background: #990000;
         }
 
         .content {
-            flex: 1;
+            margin-left: 250px;
             padding: 40px;
-            overflow-y: auto;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .header-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        h1 { margin-top: 0; color: #333; }
 
+        /* TOMBOL TAMBAH */
         .btn-add {
-            background: #ccff00;
+            background-color: #ccff00;
             color: #000;
-            padding: 12px 25px;
-            text-decoration: none;
             font-weight: bold;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.3s;
         }
+        .btn-add:hover { background-color: #b3e600; transform: translateY(-2px); }
 
+        /* TABEL DATA */
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
-        th,
-        td {
-            padding: 15px;
+        th, td {
+            padding: 15px 20px;
             text-align: left;
             border-bottom: 1px solid #eee;
         }
 
         th {
-            background: #333;
+            background-color: #111;
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        tr:hover { background-color: #f9f9f9; }
+
+        /* LOGO UNIT (Teks/Emoji) */
+        .unit-logo {
+            font-size: 1.5rem;
+            background: #eee;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        /* TOMBOL AKSI */
+        .btn {
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            margin-right: 5px;
+            font-weight: bold;
             color: white;
         }
+        .btn-edit { background-color: #ffc107; color: #333; }
+        .btn-delete { background-color: #dc3545; }
+        
+        .btn-edit:hover { background-color: #e0a800; }
+        .btn-delete:hover { background-color: #c82333; }
 
-        tr:hover {
-            background: #f9f9f9;
-        }
-
-        .action-link {
-            color: blue;
-            text-decoration: none;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-        .delete-link {
-            color: red;
-            text-decoration: none;
-            font-weight: bold;
-        }
     </style>
 </head>
-
 <body>
 
-    <div class="sidebar">
-        <h2>NCTverse<br><span style="font-size:0.8rem; color:white;">Admin Panel</span></h2>
-        <div class="menu">
-            <a href="/admin">🏠 Dashboard</a>
-            <a href="/admin/members">👤 Kelola Members</a>
-            <a href="/admin/albums">💿 Kelola Albums</a>
-            <a href="/admin/units" class="active">🏢 Kelola Units</a>
-            <a href="/" target="_blank">🌏 Lihat Website</a>
-            
-            <a href="/logout" class="logout">Logout</a>
-        </div>
-    </div>
+    <%- include('../partials/sidebar') %>
 
     <div class="content">
-        <div class="header-area">
-            <h1>🏢 Daftar Unit NCT</h1>
-            <a href="/admin/units/add" class="btn-add">➕ Tambah Unit Baru</a>
-        </div>
+        <h1>🏢 Daftar Unit NCT</h1>
+        <p style="color:#666; margin-bottom:20px;">Kelola unit/grup sub-unit yang ada di database.</p>
+
+        <a href="/admin/units/add" class="btn-add">+ Tambah Unit Baru</a>
 
         <table>
             <thead>
                 <tr>
-                    <th width="100">Logo</th>
+                    <th style="width: 80px;">Logo</th>
                     <th>Nama Unit</th>
-                    <th>Deskripsi Singkat</th>
-                    <th>Aksi</th>
+                    <th>Deskripsi</th>
+                    <th style="width: 150px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                <% units.forEach(u=> { %>
-                    <tr>
-                        <td style="text-align: center;">
-                            <% if(u.logo && u.logo !=='-' ) { %>
-                                <img src="/images/<%= u.logo %>"
-                                    style="width: 50px; height: 50px; object-fit: contain; background: #000; border-radius: 5px;">
-                                <% } else { %>
-                                    <span style="font-size: 2rem;">🏢</span>
-                                    <% } %>
-                        </td>
-                        <td><strong>
-                                <%= u.nama_unit %>
-                            </strong></td>
-                        <td style="color:#666;">
-                            <%= u.deskripsi.substring(0, 50) %>...
-                        </td>
-                        <td>
-                            <a href="/admin/units/edit/<%= u.id %>" class="action-link">✏️ Edit</a>
-                            <a href="/admin/units/delete/<%= u.id %>" class="delete-link"
-                                onclick="return confirm('Yakin hapus unit ini?')">🗑️ Hapus</a>
-                        </td>
-                    </tr>
-                    <% }) %>
+                <% if(units.length === 0) { %>
+                    <tr><td colspan="4" style="text-align:center; padding:30px;">Belum ada data unit.</td></tr>
+                <% } %>
+
+                <% units.forEach(u => { %>
+                <tr>
+                    <td>
+                        <div class="unit-logo"><%= u.logo || '🎵' %></div>
+                    </td>
+                    <td><strong><%= u.nama_unit %></strong></td>
+                    <td><%= u.deskripsi %></td>
+                    <td>
+                        <a href="/admin/units/edit/<%= u.id %>" class="btn btn-edit">Edit</a>
+                        <a href="/admin/units/delete/<%= u.id %>" class="btn btn-delete" 
+                           onclick="return confirm('Hapus unit <%= u.nama_unit %>?')">
+                           Hapus
+                        </a>
+                    </td>
+                </tr>
+                <% }) %>
             </tbody>
         </table>
     </div>
 
 </body>
-
 </html>

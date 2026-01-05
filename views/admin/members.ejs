@@ -3,85 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Members - Admin</title>
+    <title>Kelola Members - NCTverse</title>
     <style>
-        body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: #f4f4f4; }
-        
-        /* Sidebar (Sama kayak Dashboard biar konsisten) */
-        .sidebar { width: 250px; background: #111; color: white; padding: 20px; display: flex; flex-direction: column; }
-        .sidebar h2 { color: #ccff00; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 2px; }
-        .menu a {
-            display: block; padding: 15px; color: #aaa; text-decoration: none;
-            margin-bottom: 5px; border-radius: 5px; transition: 0.3s;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
         }
-        .menu a:hover, .menu a.active { background: #333; color: white; }
-        .logout { margin-top: auto; background: #cc0000; color: white !important; font-weight: bold; text-align: center; }
 
-        /* Content Area */
-        .content { flex: 1; padding: 40px; overflow-y: auto; }
-        
-        .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        
-        /* TOMBOL TAMBAH MEMBER (Ini yang kamu cari!) */
+        .content {
+            margin-left: 250px; /* Ruang untuk Sidebar */
+            padding: 40px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h1 { margin-top: 0; color: #333; }
+
+        /* TOMBOL TAMBAH */
         .btn-add {
-            background: #ccff00; color: #000; padding: 12px 25px; 
-            text-decoration: none; font-weight: bold; border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;
+            background-color: #ccff00;
+            color: #000;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.3s;
         }
-        .btn-add:hover { background: #b3e600; transform: translateY(-2px); }
+        .btn-add:hover { background-color: #b3e600; transform: translateY(-2px); }
 
-        /* Tabel */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #333; color: white; }
-        tr:hover { background: #f9f9f9; }
-        .foto-mini { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid #ddd; }
-        .action-link { color: blue; text-decoration: none; margin-right: 10px; font-size: 0.9rem; }
-        .delete-link { color: red; text-decoration: none; font-size: 0.9rem; }
+        /* TABEL DATA */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden; /* Biar sudut bulat kelihatan */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #111;
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #f9f9f9; }
+
+        /* FOTO MEMBER */
+        .thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+        }
+
+        /* TOMBOL AKSI */
+        .btn {
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            margin-right: 5px;
+            font-weight: bold;
+            color: white;
+        }
+        .btn-edit { background-color: #ffc107; color: #333; }
+        .btn-delete { background-color: #dc3545; }
+        
+        .btn-edit:hover { background-color: #e0a800; }
+        .btn-delete:hover { background-color: #c82333; }
+
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>NCTverse<br><span style="font-size:0.8rem; color:white;">Admin Panel</span></h2>
-        <div class="menu">
-            <a href="/admin">🏠 Dashboard</a>
-            <a href="/admin/members" class="active">👤 Kelola Members</a>
-            <a href="/admin/albums">💿 Kelola Albums</a>
-            <a href="/admin/units">🏢 Kelola Units</a>
-            <a href="/" target="_blank">🌏 Lihat Website</a>
-            <a href="#" class="logout">Logout</a>
-        </div>
-    </div>
+    <%- include('../partials/sidebar') %>
 
     <div class="content">
-        <div class="header-area">
-            <h1>👤 Daftar Member NCT</h1>
-            
-            <a href="/admin/members/add" class="btn-add">➕ Tambah Member Baru</a>
-        </div>
+        <h1>👤 Daftar Member NCT</h1>
+        <p style="color:#666; margin-bottom: 20px;">Kelola data member yang akan tampil di API.</p>
+
+        <a href="/admin/members/add" class="btn-add">+ Tambah Member Baru</a>
 
         <table>
             <thead>
                 <tr>
-                    <th>Foto</th>
+                    <th style="width: 80px;">Foto</th>
                     <th>Nama Panggung</th>
-                    <th>Nama Lengkap</th>
-                    <th>Asal</th>
-                    <th>Aksi</th>
+                    <th>Posisi</th>
+                    <th>Asal Negara</th>
+                    <th style="width: 150px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
+                <% if(members.length === 0) { %>
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding:30px;">Belum ada data member.</td>
+                    </tr>
+                <% } %>
+
                 <% members.forEach(m => { %>
                 <tr>
-                    <td><img src="/images/<%= m.foto || 'default.jpg' %>" class="foto-mini"></td>
+                    <td>
+                        <img src="/images/<%= m.foto ? m.foto : 'default.jpg' %>" class="thumb" alt="Foto">
+                    </td>
                     <td><strong><%= m.nama_panggung %></strong></td>
-                    <td><%= m.nama_lengkap %></td>
+                    <td><%= m.posisi %></td>
                     <td><%= m.asal_negara %></td>
                     <td>
-                       <a href="/admin/members/edit/<%= m.id %>" class="action-link">✏️ Edit</a> 
-    
-    <a href="/admin/members/delete/<%= m.id %>" class="delete-link" onclick="return confirm('Yakin mau hapus <%= m.nama_panggung %>?')">🗑️ Hapus</a>
+                        <a href="/admin/members/edit/<%= m.id %>" class="btn btn-edit">Edit</a>
+                        <a href="/admin/members/delete/<%= m.id %>" class="btn btn-delete" 
+                           onclick="return confirm('Apakah Anda yakin ingin menghapus <%= m.nama_panggung %>? Data tidak bisa dikembalikan.')">
+                           Hapus
+                        </a>
                     </td>
                 </tr>
                 <% }) %>
