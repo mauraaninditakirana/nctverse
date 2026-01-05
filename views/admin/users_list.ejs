@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head><title>Kelola API Users</title></head>
+<body style="padding: 20px; font-family: sans-serif;">
+    
+    <h1>👥 Kelola Pengguna API</h1>
+    <a href="/admin">Kembali ke Dashboard</a>
+    <br><br>
+
+    <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+        <tr style="background: #333; color: white;">
+            <th>ID</th>
+            <th>Nama User</th>
+            <th>Email</th>
+            <th>API Key</th>
+            <th>Status</th>
+            <th>Aksi</th>
+        </tr>
+        <% users.forEach(u => { %>
+        <tr>
+            <td><%= u.id %></td>
+            <td><%= u.nama_lengkap %></td>
+            <td><%= u.email %></td>
+            <td>
+                <code style="background:#eee;"><%= u.api_key || 'Belum Generate' %></code>
+            </td>
+            <td>
+                <% if(u.status == 'active') { %>
+                    <span style="color:green; font-weight:bold;">AKTIF</span>
+                <% } else { %>
+                    <span style="color:red; font-weight:bold;">NON-AKTIF</span>
+                <% } %>
+            </td>
+            <td>
+                <a href="/admin/api-users/toggle/<%= u.id %>/<%= u.status %>" 
+                   style="text-decoration: none; padding: 5px 10px; border: 1px solid #000; background: <%= u.status=='active'?'#ffcccc':'#ccffcc' %>;">
+                   <%= u.status == 'active' ? '🚫 MATIKAN' : '✅ HIDUPKAN' %>
+                </a>
+            </td>
+        </tr>
+        <% }) %>
+    </table>
+
+</body>
+</html>

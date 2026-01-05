@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Developer - NCT API</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #e6e6e6;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .register-card {
+            background: #111;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+
+        h1 {
+            color: #ccff00;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #ccff00;
+            background: #000;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #ccff00;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #fff;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.4);
+        }
+
+        .link-text {
+            display: block;
+            margin-top: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .link-text:hover {
+            color: #ccff00;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-card">
+        <h1>📝 Daftar Baru</h1>
+        <p style="color:#aaa; margin-bottom: 30px;">Buat akun untuk mendapatkan API Key</p>
+        
+        <form action="/developer/register" method="POST">
+            <input type="email" name="email" placeholder="Email Aktif" required>
+            <input type="text" name="nama_lengkap" placeholder="Nama Lengkap / Username" required>
+            <input type="password" name="password" placeholder="Password Kuat" required>
+            <button type="submit">DAFTAR SEKARANG</button>
+        </form>
+
+        <a href="/developer/login" class="link-text">Sudah punya akun? Login disini</a>
+        <a href="/" class="link-text" style="margin-top: 10px;">← Kembali ke Home</a>
+    </div>
+
+</body>
+</html>

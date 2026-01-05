@@ -3,104 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCTverse - Open Data</title>
+    <title>NCT API Center</title>
     <style>
         body {
             background-color: #050505;
             color: #e6e6e6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 0; text-align: center;
-        }
-        .header {
-            padding: 50px 20px;
-            background: linear-gradient(180deg, #1a1a1a 0%, #050505 100%);
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         h1 {
-            color: #ccff00; font-size: 3.5rem; margin: 0;
-            letter-spacing: 3px; text-transform: uppercase;
-            text-shadow: 0 0 15px rgba(204, 255, 0, 0.5);
+            color: #ccff00;
+            font-size: 4rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(204, 255, 0, 0.5);
         }
-        p { font-size: 1.2rem; color: #888; margin-top: 10px; }
+        p { font-size: 1.2rem; color: #888; max-width: 600px; line-height: 1.6; }
         
-        .container {
-            display: flex; justify-content: center; flex-wrap: wrap;
-            gap: 30px; padding: 50px 20px; max-width: 1200px; margin: 0 auto;
+        .btn-group { margin-top: 40px; display: flex; gap: 20px; }
+        
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: 0.3s;
         }
-
-        .card {
-            background: #111; border: 1px solid #333; border-radius: 15px;
-            width: 280px; padding: 30px 20px; text-decoration: none; color: white;
-            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-            display: flex; flex-direction: column; align-items: center;
+        .btn-primary {
+            background-color: #ccff00; color: #000;
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.3);
         }
-
-        .card:hover {
-            transform: translateY(-10px); border-color: #ccff00;
-            box-shadow: 0 0 25px rgba(204, 255, 0, 0.2); cursor: pointer;
+        .btn-primary:hover { transform: scale(1.05); background: #fff; }
+        
+        .btn-secondary {
+            border: 2px solid #333; color: #fff;
         }
-
-        /* Container Icon diperbaiki biar gambarnya rapi */
-        .unit-icon {
-            height: 120px; /* Tinggi tetap biar sejajar */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            width: 100%;
-        }
-
-        /* Style khusus untuk LOGO GAMBAR */
-        .logo-img {
-            max-width: 150px; /* Batas lebar */
-            max-height: 100px; /* Batas tinggi */
-            object-fit: contain; /* Biar gambar gak gepeng */
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); /* Efek glowing dikit */
-        }
-
-        /* Style untuk EMOJI (Fallback) */
-        .emoji-icon { font-size: 4rem; }
-
-        .unit-name {
-            font-size: 1.8rem; font-weight: bold; color: #fff;
-        }
-
-        .footer {
-            margin-top: 50px; padding: 20px; font-size: 0.8rem; color: #444; border-top: 1px solid #111;
-        }
+        .btn-secondary:hover { border-color: #ccff00; color: #ccff00; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>NCTVERSE</h1>
-        <p>The Neo Culture Technology</p>
-    </div>
+    <h1>NCT API CENTER</h1>
+    <p>
+        Layanan penyedia data terbuka untuk Member & Unit NCT. <br>
+        Silakan Login atau Generate API Key untuk mengakses database kami.
+    </p>
 
-    <div class="container">
-        <% units.forEach(unit => { %>
-            <a href="/unit/<%= unit.id %>" class="card">
-                
-                <div class="unit-icon">
-                    <% if (unit.logo && unit.logo !== '-') { %>
-                        <img src="/images/<%= unit.logo %>" alt="<%= unit.nama_unit %>" class="logo-img">
-                    <% } else { %>
-                        <div class="emoji-icon">
-                            <% if(unit.nama_unit.includes('127')) { %> 🏙️ 
-                            <% } else if(unit.nama_unit.includes('DREAM')) { %> 🎢 
-                            <% } else if(unit.nama_unit.includes('WayV')) { %> 🐉 
-                            <% } else if(unit.nama_unit.includes('WISH')) { %> 🧚‍♂️ 
-                            <% } else { %> 💚 <% } %>
-                        </div>
-                    <% } %>
-                </div>
-                
-                <div class="unit-name"><%= unit.nama_unit %></div>
-            </a>
-        <% }); %>
+    <div class="btn-group">
+        <a href="/developer/login" class="btn btn-primary">🔐 LOGIN DEVELOPER</a>
+        <a href="/developer/register" class="btn btn-secondary">📝 DAFTAR AKUN</a>
     </div>
-
-    <div class="footer">
-        &copy; 2026 NCTverse System. Built with Node.js & MySQL.
+    
+    <div style="margin-top: 50px; font-size: 0.9rem; color: #444;">
+        &copy; 2026 NCTverse System. Secured API Access.
     </div>
 
 </body>
