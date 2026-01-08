@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Developer - NCT API</title>
+    <title>Register Developer - NCT API</title>
     <style>
         body {
             background-color: #050505;
@@ -89,13 +89,16 @@
 <body>
 
     <div class="register-card">
-        <h1>REGISTER</h1>
-        <p style="color:#aaa; margin-bottom: 30px;">Buat akun untuk mendapatkan API Key</p>
+        <h1>Join Developer</h1>
+        <p style="color:#aaa; margin-bottom: 30px;">Daftar gratis untuk mendapatkan API Key</p>
         
         <form action="/developer/register" method="POST">
-            <input type="email" name="email" placeholder="Email Aktif" required>
             <input type="text" name="nama_lengkap" placeholder="Nama Lengkap / Username" required>
-            <input type="password" name="password" placeholder="Password Kuat" required>
+            
+            <input type="email" name="email" placeholder="Alamat Email" required>
+            
+            <input type="password" name="password" placeholder="Password Baru" required>
+            
             <button type="submit">DAFTAR SEKARANG</button>
         </form>
 

@@ -56,9 +56,10 @@ const cekUser = (req, res, next) => {
     }
 };
 
-// Cek API Key (UPDATE: Cek ke tabel api_keys)
+// Cek API Key (UPDATE: Support URL & HEADER Postman)
 const cekApiKey = (req, res, next) => {
-    const key = req.query.key; 
+    // Cari key di URL (?key=...) ATAU di Header (key: ...)
+    const key = req.query.key || req.headers['key']; 
 
     if (!key) {
         return res.status(401).json({ status: "error", message: "API Key diperlukan!" });
@@ -103,7 +104,11 @@ app.post('/developer/register', (req, res) => {
     db.query('INSERT INTO api_users (email, password, nama_lengkap) VALUES (?, ?, ?)', 
     [email, password, nama_lengkap], (err) => {
         if(err) return res.send("Email error/sudah terdaftar.");
-        res.redirect('/developer/login');
+        //res.redirect('/developer/login');
+        res.json({
+            status: "success",
+            message: "HORE! User berhasil terdaftar. Silakan login."
+        });
     });
 });
 
