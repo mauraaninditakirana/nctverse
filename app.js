@@ -35,87 +35,76 @@ app.use(session({
 }));
 
 // ==========================================
-// 3. MIDDLEWARE SATPAM (SECURITY)
+// 3. MIDDLEWARE & HELPER (LOGIKA BARU)
 // ==========================================
+
+// Fungsi Helper: Deteksi apakah request dari Postman?
+const isPostman = (req) => {
+    const userAgent = req.headers['user-agent'];
+    // Cek apakah User-Agent mengandung kata "Postman"
+    return userAgent && userAgent.includes('Postman');
+};
 
 // Cek Admin
 const cekAdmin = (req, res, next) => {
-    if (req.session.role === 'admin') {
-        next();
-    } else {
-        res.redirect('/login');
-    }
+    if (req.session.role === 'admin') next();
+    else res.redirect('/login');
 };
 
 // Cek User Developer
 const cekUser = (req, res, next) => {
-    if (req.session.role === 'user') {
-        next();
-    } else {
-        res.redirect('/developer/login');
-    }
+    if (req.session.role === 'user') next();
+    else res.redirect('/developer/login');
 };
 
-// Cek API Key (UPDATE: Support URL & HEADER Postman)
+// Cek API Key (Support URL & HEADER Postman)
 const cekApiKey = (req, res, next) => {
-    // Cari key di URL (?key=...) ATAU di Header (key: ...)
     const key = req.query.key || req.headers['key']; 
 
-    if (!key) {
-        return res.status(401).json({ status: "error", message: "API Key diperlukan!" });
-    }
+    if (!key) return res.status(401).json({ status: "error", message: "API Key diperlukan!" });
 
-    // Cek di tabel history key
     db.query('SELECT * FROM api_keys WHERE key_string = ?', [key], (err, results) => {
         if (err) return res.status(500).json({ status: "error", message: "Database Error" });
         
-        // 1. Cek apakah key ada?
-        if (results.length === 0) {
-            return res.status(403).json({ status: "error", message: "API Key tidak valid." });
-        }
+        if (results.length === 0) return res.status(403).json({ status: "error", message: "API Key tidak valid." });
+        
+        if (results[0].status === 'inactive') return res.status(403).json({ status: "error", message: "API Key ini telah DINONAKTIFKAN oleh Admin." });
 
-        // 2. Cek apakah status key tersebut aktif?
-        if (results[0].status === 'inactive') {
-            return res.status(403).json({ status: "error", message: "API Key ini telah DINONAKTIFKAN oleh Admin." });
-        }
-
-        // Lanjut jika aman
         next(); 
     });
 };
 
 
 // ==========================================
-// 4. ROUTE PUBLIC & AUTH
+// 4. ROUTE PUBLIC & AUTH (HYBRID)
 // ==========================================
 
-app.get('/', (req, res) => {
-    res.render('index');
-});
+app.get('/', (req, res) => res.render('index'));
 
 // --- Register Developer ---
-app.get('/developer/register', (req, res) => {
-    res.render('user/register');
-});
+app.get('/developer/register', (req, res) => res.render('user/register'));
 
 app.post('/developer/register', (req, res) => {
     const { email, password, nama_lengkap } = req.body;
-    // Insert User Baru (Key belum ada)
+    
     db.query('INSERT INTO api_users (email, password, nama_lengkap) VALUES (?, ?, ?)', 
     [email, password, nama_lengkap], (err) => {
         if(err) return res.send("Email error/sudah terdaftar.");
-        //res.redirect('/developer/login');
-        res.json({
-            status: "success",
-            message: "HORE! User berhasil terdaftar. Silakan login."
-        });
+        
+        // --- LOGIKA CERDAS ---
+        if (isPostman(req)) {
+            res.json({
+                status: "success",
+                message: "HORE! User berhasil terdaftar. Silakan login."
+            });
+        } else {
+            res.redirect('/developer/login');
+        }
     });
 });
 
 // --- Login Developer ---
-app.get('/developer/login', (req, res) => {
-    res.render('user/login');
-});
+app.get('/developer/login', (req, res) => res.render('user/login'));
 
 app.post('/developer/login', (req, res) => {
     const { email, password } = req.body;
@@ -124,51 +113,74 @@ app.post('/developer/login', (req, res) => {
             req.session.role = 'user';
             req.session.userId = results[0].id;
             req.session.userName = results[0].nama_lengkap;
-            res.redirect('/developer/dashboard');
+            
+            // --- LOGIKA CERDAS ---
+            if (isPostman(req)) {
+                res.send("LOGIN DEVELOPER BERHASIL! Silakan akses dashboard atau endpoint lainnya.");
+            } else {
+                res.redirect('/developer/dashboard');
+            }
+            
         } else {
             res.send("Login Gagal: Email atau Password Salah");
         }
     });
 });
 
-// --- Dashboard Developer (UPDATE) ---
+// --- Dashboard Developer ---
 app.get('/developer/dashboard', cekUser, (req, res) => {
-    // 1. Ambil data user
     db.query('SELECT * FROM api_users WHERE id = ?', [req.session.userId], (err, userRes) => {
         if(userRes.length === 0) return res.redirect('/developer/login');
 
-        // 2. Ambil Key TERBARU milik user ini (untuk ditampilkan di dashboard utama)
         db.query('SELECT * FROM api_keys WHERE user_id = ? ORDER BY id DESC LIMIT 1', [req.session.userId], (err, keyRes) => {
             const userData = userRes[0];
-            
-            // Inject data key ke object user biar view tidak error
             if (keyRes.length > 0) {
                 userData.api_key = keyRes[0].key_string;
-                userData.status = keyRes[0].status; // status key terakhir
+                userData.status = keyRes[0].status;
             } else {
                 userData.api_key = null;
-                userData.status = 'active'; // Default user status
+                userData.status = 'active';
             }
-
             res.render('user/dashboard', { user: userData });
         });
     });
 });
 
-// --- Generate Key (UPDATE: Insert ke tabel History) ---
+// --- Generate Key (HYBRID) ---
 app.post('/developer/generate-key', cekUser, (req, res) => {
     const newKey = 'nct_' + crypto.randomBytes(16).toString('hex');
     
-    // Insert ke tabel api_keys
     db.query('INSERT INTO api_keys (user_id, key_string, status) VALUES (?, ?, "active")', 
     [req.session.userId, newKey], (err) => {
-        if(err) console.log(err);
-        res.redirect('/developer/dashboard');
+        if(err) {
+            console.log(err);
+            return res.send("Database Error");
+        }
+        
+        // --- LOGIKA CERDAS ---
+        if (isPostman(req)) {
+            res.json({
+                status: "success",
+                message: "API Key Baru Berhasil Dibuat!",
+                new_key: newKey
+            });
+        } else {
+            res.redirect('/developer/dashboard');
+        }
     });
 });
 
+// Logout Developer (Hybrid)
 app.get('/developer/logout', (req, res) => {
-    req.session.destroy(() => res.redirect('/developer/login'));
+    req.session.destroy((err) => {
+        if(err) return res.send("Gagal Logout");
+
+        if (isPostman(req)) {
+            res.send("LOGOUT DEVELOPER BERHASIL! Sesi Anda telah dihapus.");
+        } else {
+            res.redirect('/developer/login');
+        }
+    });
 });
 
 
@@ -230,19 +242,26 @@ Generated by NCT API Center
 
 // Login Admin
 app.get('/login', (req, res) => {
-    if (req.session.role === 'admin') {
-        res.redirect('/admin');
-    } else {
-        res.render('login', {error: null});
-    }
+    if (req.session.role === 'admin') res.redirect('/admin');
+    else res.render('login', {error: null});
 });
 
+// --- UPDATE PENTING: LOGIN ADMIN JADI HYBRID ---
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     db.query('SELECT * FROM admin WHERE username = ? AND password = ?', [username, password], (err, resDb) => {
         if(resDb.length > 0) {
             req.session.role = 'admin';
-            res.redirect('/admin');
+            
+            // --- LOGIKA CERDAS ---
+            if (isPostman(req)) {
+                // Postman: Kasih Teks
+                res.send("LOGIN ADMIN BERHASIL! Silakan kelola data.");
+            } else {
+                // Browser: Pindah ke Dashboard
+                res.redirect('/admin');
+            }
+
         } else {
             res.render('login', {error: "Username atau Password Salah!"});
         }
@@ -271,36 +290,26 @@ app.get('/admin', cekAdmin, (req, res) => {
 // FITUR: MANAJEMEN USER API (CRUD & HISTORY)
 // ==========================================
 
-// 1. List Semua User
 app.get('/admin/users', cekAdmin, (req, res) => {
     db.query('SELECT * FROM api_users ORDER BY id DESC', (err, results) => {
         res.render('admin/users', { users: results, page: 'users' });
     });
 });
 
-// 2. Detail User & HISTORY KEY
 app.get('/admin/users/detail/:id', cekAdmin, (req, res) => {
-    // Ambil data user
     db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, userRes) => {
-        // Ambil SEMUA key milik user ini (History)
         db.query('SELECT * FROM api_keys WHERE user_id = ? ORDER BY created_at DESC', [req.params.id], (err, keysRes) => {
-            res.render('admin/user_detail', { 
-                user: userRes[0], 
-                keys: keysRes, // Kirim daftar key ke view
-                page: 'users' 
-            });
+            res.render('admin/user_detail', { user: userRes[0], keys: keysRes, page: 'users' });
         });
     });
 });
 
-// 3. Form Edit User
 app.get('/admin/users/edit/:id', cekAdmin, (req, res) => {
     db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, r) => {
         res.render('admin/user_edit', { user: r[0], page: 'users' });
     });
 });
 
-// 4. Proses Update User
 app.post('/admin/users/update/:id', cekAdmin, (req, res) => {
     const { nama_lengkap, email, password } = req.body;
     db.query('UPDATE api_users SET nama_lengkap=?, email=?, password=? WHERE id=?', 
@@ -309,16 +318,11 @@ app.post('/admin/users/update/:id', cekAdmin, (req, res) => {
     });
 });
 
-// 5. Toggle Status API KEY (Berdasarkan ID KEY, bukan ID User)
 app.get('/admin/keys/toggle/:keyId/:userId', cekAdmin, (req, res) => {
-    // Cek status sekarang
     db.query('SELECT status FROM api_keys WHERE id = ?', [req.params.keyId], (err, r) => {
         const currentStatus = r[0].status;
         const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-        
-        // Update status di tabel api_keys
         db.query('UPDATE api_keys SET status = ? WHERE id = ?', [newStatus, req.params.keyId], () => {
-            // Redirect balik ke detail user
             res.redirect(`/admin/users/detail/${req.params.userId}`);
         });
     });
@@ -409,9 +413,15 @@ app.post('/admin/units/update/:id', cekAdmin, (req, res) => {
     });
 });
 
-// Logout Umum
+// Logout Umum (Hybrid)
 app.get('/logout', (req, res) => {
-    req.session.destroy(() => res.redirect('/login'));
+    req.session.destroy(() => {
+        if (isPostman(req)) {
+            res.send("LOGOUT ADMIN/USER BERHASIL!");
+        } else {
+            res.redirect('/login');
+        }
+    });
 });
 
 // Jalankan Server
