@@ -4,64 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Members - NCTverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --neon-green: #ccff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
             margin: 0;
-            display: flex;
         }
 
+        /* --- STYLE KONTEN --- */
         .content {
-            margin-left: 250px; /* Ruang untuk Sidebar */
-            padding: 40px;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        h1 { margin-top: 0; color: #333; }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
 
-        /* TOMBOL TAMBAH */
+        h1 { 
+            margin: 0; 
+            font-weight: 800; 
+            font-size: 2rem; 
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        p { color: var(--text-muted); margin: 5px 0 0 0; }
+
+        /* TOMBOL TAMBAH (NEON STYLE) */
         .btn-add {
-            background-color: #ccff00;
+            background-color: var(--neon-green);
             color: #000;
-            font-weight: bold;
+            font-weight: 800;
             text-decoration: none;
             padding: 12px 25px;
-            border-radius: 8px;
+            border-radius: 50px;
             display: inline-block;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(204, 255, 0, 0.3);
             transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
         }
-        .btn-add:hover { background-color: #b3e600; transform: translateY(-2px); }
+        .btn-add:hover { 
+            background-color: #fff; 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(204, 255, 0, 0.5);
+        }
 
-        /* TABEL DATA */
+        /* TABEL DATA MODERN */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden; /* Round corners */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden; /* Biar sudut bulat kelihatan */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
         th, td {
-            padding: 15px 20px;
+            padding: 20px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background-color: #111;
-            color: white;
+            background-color: #000;
+            color: var(--text-muted);
             text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            font-weight: 600;
         }
 
         tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #f9f9f9; }
+        
+        tr:hover { 
+            background-color: rgba(255, 255, 255, 0.03); 
+        }
 
         /* FOTO MEMBER */
         .thumb {
@@ -69,73 +111,105 @@
             height: 50px;
             object-fit: cover;
             border-radius: 50%;
-            border: 2px solid #ddd;
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 10px rgba(204, 255, 0, 0.2);
         }
+
+        /* NAMA MEMBER */
+        td strong { color: var(--text-main); font-size: 1rem; }
+        td { color: #ccc; font-size: 0.95rem; }
 
         /* TOMBOL AKSI */
         .btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 0.85rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
             margin-right: 5px;
-            font-weight: bold;
-            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+            transition: 0.2s;
         }
-        .btn-edit { background-color: #ffc107; color: #333; }
-        .btn-delete { background-color: #dc3545; }
         
-        .btn-edit:hover { background-color: #e0a800; }
-        .btn-delete:hover { background-color: #c82333; }
+        .btn-edit { 
+            background-color: transparent; 
+            border: 1px solid #ffc107; 
+            color: #ffc107; 
+        }
+        .btn-edit:hover { background-color: #ffc107; color: #000; }
+
+        .btn-delete { 
+            background-color: transparent; 
+            border: 1px solid #ff4d4d; 
+            color: #ff4d4d; 
+        }
+        .btn-delete:hover { background-color: #ff4d4d; color: #fff; }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .content { padding: 20px; }
+            .header-section { flex-direction: column; align-items: flex-start; gap: 15px; }
+            th, td { padding: 15px 10px; font-size: 0.85rem; }
+            .thumb { width: 40px; height: 40px; }
+        }
 
     </style>
 </head>
 <body>
 
-    <%- include('../partials/sidebar') %>
+    <%- include('../partials/navbar') %>
 
     <div class="content">
-        <h1>👤 Daftar Member NCT</h1>
-        <p style="color:#666; margin-bottom: 20px;">Kelola data member yang akan tampil di API.</p>
+        
+        <div class="header-section">
+            <div>
+                <h1>👤 Daftar Member NCT</h1>
+                <p>Kelola data member.</p>
+            </div>
+            <a href="/admin/members/add" class="btn-add">+ Tambah Member</a>
+        </div>
 
-        <a href="/admin/members/add" class="btn-add">+ Tambah Member Baru</a>
-
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 80px;">Foto</th>
-                    <th>Nama Panggung</th>
-                    <th>Posisi</th>
-                    <th>Asal Negara</th>
-                    <th style="width: 150px;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if(members.length === 0) { %>
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <td colspan="5" style="text-align:center; padding:30px;">Belum ada data member.</td>
+                        <th style="width: 80px; text-align:center;">Foto</th>
+                        <th>Nama Panggung</th>
+                        <th>Posisi</th>
+                        <th>Asal Negara</th>
+                        <th style="width: 180px; text-align:center;">Aksi</th>
                     </tr>
-                <% } %>
+                </thead>
+                <tbody>
+                    <% if(members.length === 0) { %>
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted);">
+                                📭 Belum ada data member. Silakan tambah data baru.
+                            </td>
+                        </tr>
+                    <% } %>
 
-                <% members.forEach(m => { %>
-                <tr>
-                    <td>
-                        <img src="/images/<%= m.foto ? m.foto : 'default.jpg' %>" class="thumb" alt="Foto">
-                    </td>
-                    <td><strong><%= m.nama_panggung %></strong></td>
-                    <td><%= m.posisi %></td>
-                    <td><%= m.asal_negara %></td>
-                    <td>
-                        <a href="/admin/members/edit/<%= m.id %>" class="btn btn-edit">Edit</a>
-                        <a href="/admin/members/delete/<%= m.id %>" class="btn btn-delete" 
-                           onclick="return confirm('Apakah Anda yakin ingin menghapus <%= m.nama_panggung %>? Data tidak bisa dikembalikan.')">
-                           Hapus
-                        </a>
-                    </td>
-                </tr>
-                <% }) %>
-            </tbody>
-        </table>
+                    <% members.forEach(m => { %>
+                    <tr>
+                        <td style="text-align:center;">
+                            <img src="/images/<%= m.foto ? m.foto : 'default.jpg' %>" class="thumb" alt="Foto">
+                        </td>
+                        <td><strong><%= m.nama_panggung %></strong></td>
+                        <td><%= m.posisi %></td>
+                        <td><%= m.asal_negara %></td>
+                        <td style="text-align:center;">
+                            <a href="/admin/members/edit/<%= m.id %>" class="btn btn-edit">Edit</a>
+                            <a href="/admin/members/delete/<%= m.id %>" class="btn btn-delete" 
+                               onclick="return confirm('Apakah Anda yakin ingin menghapus <%= m.nama_panggung %>? Data tidak bisa dikembalikan.')">
+                               Hapus
+                            </a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </body>

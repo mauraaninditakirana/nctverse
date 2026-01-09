@@ -4,151 +4,219 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Units - NCTverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --neon-green: #ccff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
             margin: 0;
-            display: flex;
         }
 
+        /* --- LAYOUT UTAMA --- */
         .content {
-            margin-left: 250px;
-            padding: 40px;
-            width: 100%;
-            box-sizing: border-box; /* Agar padding tidak menambah lebar total */
-            overflow-x: hidden; /* Mencegah scroll menyamping */
+            padding: 50px;
+            max-width: 1200px; /* Lebar tengah */
+            margin: 0 auto;
         }
 
-        h1 { margin-top: 0; color: #333; }
+        /* HEADER SECTION (Judul & Tombol Tambah) */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
 
+        h1 { 
+            margin: 0; 
+            font-weight: 800; 
+            font-size: 2rem; 
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        p { color: var(--text-muted); margin: 5px 0 0 0; }
+
+        /* TOMBOL TAMBAH */
         .btn-add {
-            background-color: #ccff00;
+            background-color: var(--neon-green);
             color: #000;
-            font-weight: bold;
+            font-weight: 800;
             text-decoration: none;
             padding: 12px 25px;
-            border-radius: 8px;
+            border-radius: 50px;
             display: inline-block;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(204, 255, 0, 0.3);
             transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
         }
-        .btn-add:hover { background-color: #b3e600; transform: translateY(-2px); }
+        .btn-add:hover { 
+            background-color: #fff; 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(204, 255, 0, 0.5);
+        }
 
-        /* --- PERBAIKAN TABEL --- */
+        /* --- TABEL --- */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            table-layout: fixed; /* PENTING: Agar lebar kolom terkunci */
+            table-layout: fixed; /* Agar deskripsi panjang turun ke bawah */
         }
 
         th, td {
-            padding: 15px;
+            padding: 20px;
             text-align: left;
-            border-bottom: 1px solid #eee;
-            vertical-align: top; /* Teks dimulai dari atas */
-            word-wrap: break-word; /* Teks panjang akan turun ke bawah */
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle; /* Konten di tengah vertikal */
         }
 
         th {
-            background-color: #111;
-            color: white;
+            background-color: #000;
+            color: var(--text-muted);
             text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            font-weight: 600;
         }
 
-        /* Lebar Kolom Diatur Disini */
-        th:nth-child(1) { width: 10%; } /* Logo */
-        th:nth-child(2) { width: 15%; } /* Nama Unit */
-        th:nth-child(3) { width: 55%; } /* Deskripsi (Paling Lebar) */
-        th:nth-child(4) { width: 20%; } /* Aksi */
+        /* Pengaturan Lebar Kolom */
+        th:nth-child(1) { width: 100px; text-align: center; } /* Logo */
+        th:nth-child(2) { width: 20%; } /* Nama */
+        th:nth-child(3) { width: 45%; } /* Deskripsi */
+        th:nth-child(4) { width: 200px; text-align: center; } /* Aksi */
 
-        tr:hover { background-color: #f9f9f9; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: rgba(255, 255, 255, 0.03); }
 
-        /* GAYA LOGO (GAMBAR) */
+        /* LOGO UNIT */
         .thumb {
             width: 60px;
             height: 60px;
-            object-fit: cover; /* Agar gambar tidak gepeng */
+            object-fit: cover;
             border-radius: 50%;
-            border: 2px solid #ddd;
-            background: #eee;
+            border: 2px solid var(--neon-green);
+            background: #000;
+            box-shadow: 0 0 10px rgba(204, 255, 0, 0.2);
+        }
+
+        /* TEXT STYLING */
+        td strong { color: var(--text-main); font-size: 1.1rem; }
+        .desc-text { 
+            color: #bbb; 
+            font-size: 0.9rem; 
+            line-height: 1.6; 
+            word-wrap: break-word; /* Mencegah teks panjang merusak layout */
         }
 
         /* TOMBOL AKSI */
         .btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 0.85rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
             margin-right: 5px;
-            font-weight: bold;
-            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
             display: inline-block;
-            margin-bottom: 5px;
+            transition: 0.2s;
         }
-        .btn-edit { background-color: #ffc107; color: #333; }
-        .btn-delete { background-color: #dc3545; }
         
-        .btn-edit:hover { background-color: #e0a800; }
-        .btn-delete:hover { background-color: #c82333; }
+        .btn-edit { background-color: transparent; border: 1px solid #ffc107; color: #ffc107; }
+        .btn-edit:hover { background-color: #ffc107; color: #000; }
+
+        .btn-delete { background-color: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; }
+        .btn-delete:hover { background-color: #ff4d4d; color: #fff; }
+
+        @media (max-width: 768px) {
+            .content { padding: 20px; }
+            .header-section { flex-direction: column; align-items: flex-start; gap: 15px; }
+            table { display: block; overflow-x: auto; }
+            th, td { padding: 15px; min-width: 120px; }
+        }
 
     </style>
 </head>
 <body>
 
-    <%- include('../partials/sidebar') %>
+    <%- include('../partials/navbar') %>
 
     <div class="content">
-        <h1>🏢 Daftar Unit NCT</h1>
-        <p style="color:#666; margin-bottom:20px;">Kelola unit/grup sub-unit yang ada di database.</p>
+        
+        <div class="header-section">
+            <div>
+                <h1>🏢 Daftar Unit NCT</h1>
+                <p>Kelola sub-unit NCT.</p>
+            </div>
+            <a href="/admin/units/add" class="btn-add">+ Tambah Unit</a>
+        </div>
 
-        <a href="/admin/units/add" class="btn-add">+ Tambah Unit Baru</a>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Logo</th>
+                        <th>Nama Unit</th>
+                        <th>Deskripsi</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(units.length === 0) { %>
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">
+                                📭 Belum ada data unit. Silakan tambah unit baru.
+                            </td>
+                        </tr>
+                    <% } %>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Logo</th>
-                    <th>Nama Unit</th>
-                    <th>Deskripsi</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if(units.length === 0) { %>
-                    <tr><td colspan="4" style="text-align:center; padding:30px;">Belum ada data unit.</td></tr>
-                <% } %>
-
-                <% units.forEach(u => { %>
-                <tr>
-                    <td>
-                        <img src="/images/<%= u.logo || 'default.jpg' %>" class="thumb" alt="Logo">
-                    </td>
-                    <td>
-                        <strong><%= u.nama_unit %></strong>
-                    </td>
-                    <td>
-                        <div style="font-size: 0.95rem; line-height: 1.5; color: #444;">
-                            <%= u.deskripsi %>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="/admin/units/edit/<%= u.id %>" class="btn btn-edit">Edit</a>
-                        <a href="/admin/units/delete/<%= u.id %>" class="btn btn-delete" 
-                           onclick="return confirm('Hapus unit <%= u.nama_unit %>?')">
-                           Hapus
-                        </a>
-                    </td>
-                </tr>
-                <% }) %>
-            </tbody>
-        </table>
+                    <% units.forEach(u => { %>
+                    <tr>
+                        <td style="text-align: center;">
+                            <img src="/images/<%= u.logo || 'default.jpg' %>" class="thumb" alt="Logo">
+                        </td>
+                        <td>
+                            <strong><%= u.nama_unit %></strong>
+                        </td>
+                        <td>
+                            <div class="desc-text">
+                                <%= u.deskripsi %>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="/admin/units/edit/<%= u.id %>" class="btn btn-edit">Edit</a>
+                            <a href="/admin/units/delete/<%= u.id %>" class="btn btn-delete" 
+                               onclick="return confirm('Hapus unit <%= u.nama_unit %>?')">
+                               Hapus
+                            </a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </body>

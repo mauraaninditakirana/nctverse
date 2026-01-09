@@ -4,113 +4,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola User API - NCTverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --neon-green: #ccff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
             margin: 0;
-            display: flex;
         }
 
-        /* KONTEN UTAMA */
+        /* --- LAYOUT UTAMA --- */
         .content {
-            margin-left: 250px; /* Memberi ruang untuk sidebar */
-            padding: 40px;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        h1 { margin-top: 0; color: #333; }
+        /* HEADER SECTION */
+        .header-section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
 
-        /* TABEL DATA */
+        h1 { 
+            margin: 0; 
+            font-weight: 800; 
+            font-size: 2rem; 
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        p { color: var(--text-muted); margin: 5px 0 0 0; }
+
+        /* --- TABEL --- */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-top: 25px;
         }
 
         th, td {
-            padding: 15px 20px;
+            padding: 20px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
         }
 
         th {
-            background-color: #111;
-            color: white;
+            background-color: #000;
+            color: var(--text-muted);
             text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            font-weight: 600;
         }
 
-        tr:hover { background-color: #f9f9f9; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+        /* TEXT STYLING */
+        td strong { color: var(--text-main); font-size: 1rem; }
+        td { color: #ccc; font-size: 0.95rem; }
 
         /* TOMBOL AKSI */
         .btn {
-            display: inline-block;
-            padding: 6px 12px;
+            padding: 8px 16px;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: white;
-            margin-right: 5px;
-            transition: 0.3s;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            margin-right: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+            transition: 0.2s;
         }
+        
+        .btn-edit { 
+            background-color: transparent; 
+            border: 1px solid #ffc107; 
+            color: #ffc107; 
+        }
+        .btn-edit:hover { background-color: #ffc107; color: #000; }
 
-        .btn-edit {
-            background-color: #ffc107; /* Orange/Kuning */
-            color: #333;
+        .btn-detail { 
+            background-color: transparent; 
+            border: 1px solid #007bff; 
+            color: #007bff; 
         }
-        .btn-edit:hover { background-color: #e0a800; }
+        .btn-detail:hover { background-color: #007bff; color: #fff; }
 
-        .btn-detail {
-            background-color: #007bff; /* Biru */
+        @media (max-width: 768px) {
+            .content { padding: 20px; }
+            table { display: block; overflow-x: auto; }
+            th, td { padding: 15px; min-width: 120px; }
         }
-        .btn-detail:hover { background-color: #0056b3; }
 
     </style>
 </head>
 <body>
 
-    <%- include('../partials/sidebar') %>
+    <%- include('../partials/navbar') %>
 
     <div class="content">
-        <h1>👥 Daftar Developer (User API)</h1>
-        <p style="color:#666;">Kelola akun developer yang terdaftar di sistem API NCTverse.</p>
+        
+        <div class="header-section">
+            <h1>👥 Daftar Developer (User API)</h1>
+            <p>Kelola akun developer yang terdaftar di sistem.</p>
+        </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50px;">ID</th>
-                    <th>Nama Lengkap</th>
-                    <th>Email</th>
-                    <th>Aksi Admin</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if(users.length === 0) { %>
-                    <tr><td colspan="4" style="text-align:center; padding:30px;">Belum ada user yang mendaftar.</td></tr>
-                <% } %>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">ID</th>
+                        <th>Nama Lengkap</th>
+                        <th>Email</th>
+                        <th style="width: 250px;">Aksi Admin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(users.length === 0) { %>
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">
+                                📭 Belum ada user yang mendaftar.
+                            </td>
+                        </tr>
+                    <% } %>
 
-                <% users.forEach(u => { %>
-                <tr>
-                    <td>#<%= u.id %></td>
-                    <td><strong><%= u.nama_lengkap %></strong></td>
-                    <td><%= u.email %></td>
-                    <td>
-                        <a href="/admin/users/edit/<%= u.id %>" class="btn btn-edit">Edit</a>
-                        
-                        <a href="/admin/users/detail/<%= u.id %>" class="btn btn-detail">Lihat Key & History</a>
-                    </td>
-                </tr>
-                <% }) %>
-            </tbody>
-        </table>
+                    <% users.forEach(u => { %>
+                    <tr>
+                        <td style="color:var(--text-muted);">#<%= u.id %></td>
+                        <td><strong><%= u.nama_lengkap %></strong></td>
+                        <td><%= u.email %></td>
+                        <td>
+                            <a href="/admin/users/edit/<%= u.id %>" class="btn btn-edit">Edit</a>
+                            <a href="/admin/users/detail/<%= u.id %>" class="btn btn-detail">Lihat Key & History</a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </body>
