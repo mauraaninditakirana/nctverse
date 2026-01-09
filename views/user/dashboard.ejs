@@ -5,127 +5,185 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Developer - NCT API</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --neon-green: #ccff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --border-color: #333;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
             margin: 0;
-            padding: 40px;
+            padding: 40px 20px;
+            background-image: radial-gradient(circle at 10% 20%, rgba(204, 255, 0, 0.03) 0%, transparent 20%);
         }
 
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 50px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        /* Header Area */
+        /* --- HEADER AREA --- */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        h2 { margin: 0; color: #111; }
-        .sub-text { color: #666; font-size: 0.9rem; }
+        h2 { 
+            margin: 0; 
+            font-weight: 800; 
+            font-size: 2rem; 
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #fff, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .sub-text { 
+            color: var(--text-muted); 
+            font-size: 1rem; 
+            margin-top: 5px;
+        }
+        .sub-text strong { color: var(--neon-green); }
 
         .btn-logout {
-            color: #d9534f;
+            color: #ff4d4d;
             text-decoration: none;
-            font-weight: bold;
-            border: 1px solid #d9534f;
-            padding: 8px 20px;
-            border-radius: 5px;
-            transition: 0.3s;
+            font-weight: 600;
+            border: 1px solid #ff4d4d;
+            padding: 10px 25px;
+            border-radius: 100px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
-        .btn-logout:hover { background: #d9534f; color: white; }
+        .btn-logout:hover { 
+            background: #ff4d4d; 
+            color: white; 
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.4);
+        }
 
-        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
-
-        /* API Key Section */
+        /* --- API KEY SECTION --- */
         .key-section {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            padding: 25px;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--border-color);
+            padding: 40px;
+            border-radius: 16px;
             text-align: center;
             margin-bottom: 40px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            transition: 0.3s;
         }
+        .key-section:hover { border-color: #555; background: rgba(255, 255, 255, 0.04); }
+
+        .key-section h3 { margin-top: 0; font-weight: 600; color: #ddd; }
 
         .key-box {
-            background: #111;
-            color: #ccff00;
+            background: #000;
+            color: var(--neon-green);
             padding: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 1.4rem;
+            font-family: 'JetBrains Mono', monospace; /* Font coding */
+            font-size: 1.2rem;
             font-weight: bold;
-            border-radius: 8px;
-            margin: 15px 0;
+            border-radius: 12px;
+            margin: 20px auto;
             border: 1px solid #333;
             word-break: break-all;
-            position: relative;
+            max-width: 80%;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
         }
 
-        .status-active { color: #28a745; font-weight: bold; }
-        .status-inactive { color: #dc3545; font-weight: bold; }
+        .status-active { 
+            color: var(--dark-bg); 
+            background: var(--neon-green);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        .status-inactive { color: #ff4d4d; font-weight: bold; }
 
         .btn-gen {
-            background: #ccff00;
+            background: var(--neon-green);
             color: #000;
-            font-weight: bold;
+            font-weight: 800;
             border: none;
-            padding: 12px 30px;
+            padding: 14px 40px;
             border-radius: 50px;
             cursor: pointer;
             font-size: 1rem;
-            transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .btn-gen:hover { transform: scale(1.05); box-shadow: 0 6px 12px rgba(204, 255, 0, 0.4); }
+        .btn-gen:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 0 25px rgba(204, 255, 0, 0.4); 
+        }
 
-        /* Testing Area */
+        /* --- TESTING AREA --- */
         .test-area {
-            background: #f8f9fa;
+            background: #0f0f0f;
             padding: 30px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
         }
+        
+        .test-area h3 { color: #fff; margin-bottom: 5px; }
 
         .input-group {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 15px;
+            margin-top: 20px;
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 15px;
+            padding: 15px 20px;
             font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 12px;
             outline: none;
+            font-family: 'JetBrains Mono', monospace;
+            transition: 0.3s;
         }
-        input[type="text"]:focus { border-color: #ccff00; }
+        input[type="text"]:focus { 
+            border-color: var(--neon-green); 
+            box-shadow: 0 0 0 2px rgba(204, 255, 0, 0.1);
+        }
 
         .btn-test {
-            background: #111;
-            color: #ccff00;
+            background: #fff;
+            color: #000;
             border: none;
             padding: 0 30px;
-            font-weight: bold;
-            border-radius: 8px;
+            font-weight: 800;
+            border-radius: 12px;
             cursor: pointer;
             transition: 0.3s;
         }
-        .btn-test:hover { background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.3); }
+        .btn-test:hover { background: var(--neon-green); }
 
-        /* Result Grid (Kartu Visual) */
+        /* --- RESULT GRID (KARTU VISUAL) --- */
         .result-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -134,169 +192,136 @@
         }
 
         .mini-card {
-            background: #1a1a1a;
-            color: white;
-            border-radius: 12px;
+            background: #111;
+            border-radius: 16px;
             overflow: hidden;
             text-align: center;
             border: 1px solid #333;
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         .mini-card:hover {
             transform: translateY(-5px);
-            border-color: #ccff00;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border-color: var(--neon-green);
+            box-shadow: 0 10px 30px rgba(204, 255, 0, 0.15);
         }
 
         .card-img {
             width: 100%;
-            height: 220px;
-            object-fit: cover;
-            border-bottom: 3px solid #ccff00;
+            height: 250px; /* TINGGI FOTO DISAMAKAN */
+            object-fit: cover; /* Agar foto tidak gepeng */
+            border-bottom: 2px solid #333;
+            transition: 0.3s;
         }
+        
+        .mini-card:hover .card-img { border-bottom-color: var(--neon-green); }
 
-        .card-body { padding: 15px; }
+        .card-body { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
         
         .mini-card h4 { margin: 5px 0; color: #fff; font-size: 1.1rem; }
         .mini-card p { margin: 0; color: #888; font-size: 0.85rem; }
         
         .badge-id {
             position: absolute; top: 10px; right: 10px;
-            background: #ccff00; color: #000;
-            padding: 4px 8px; border-radius: 6px;
+            background: var(--neon-green); color: #000;
+            padding: 4px 10px; border-radius: 6px;
             font-size: 0.75rem; font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* --- MODAL POPUP STYLE (LANDSCAPE VERSION) --- */
+        /* --- MODAL POPUP (TETAP SAMA TAPI RAPID) --- */
         .modal-overlay {
             display: none;
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.9);
             z-index: 999;
             justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
         .modal-content {
             background: #111;
             color: white;
-            width: 95%; 
-            max-width: 800px; /* Lebih lebar untuk landscape */
-            padding: 30px;
-            border-radius: 20px;
-            border: 2px solid #ccff00;
+            width: 90%; max-width: 800px; /* Landscape mode */
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid #333;
+            box-shadow: 0 0 50px rgba(204, 255, 0, 0.1);
             position: relative;
-            box-shadow: 0 0 40px rgba(204, 255, 0, 0.2);
-            animation: slideDown 0.3s ease;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes slideDown { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        @keyframes slideUp { from {transform: translateY(50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
 
         .close-btn {
-            position: absolute; top: 15px; right: 20px;
-            font-size: 2rem; color: #666; cursor: pointer;
-            z-index: 100;
+            position: absolute; top: 20px; right: 25px;
+            font-size: 2rem; color: #666; cursor: pointer; transition: 0.2s;
         }
-        .close-btn:hover { color: #ccff00; }
+        .close-btn:hover { color: var(--neon-green); }
 
-        /* Layout Flexbox untuk Landscape */
-        .modal-layout {
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
-            text-align: left;
-        }
-
-        /* Kolom Kiri: Profil Visual */
-        .modal-left {
-            flex: 0 0 250px; /* Lebar tetap */
-            text-align: center;
-            border-right: 1px solid #333; /* Garis pemisah */
-            padding-right: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .modal-layout { display: flex; gap: 40px; text-align: left; }
+        .modal-left { flex: 0 0 250px; text-align: center; border-right: 1px solid #333; padding-right: 30px; }
+        .modal-right { flex: 1; }
 
         .modal-img {
-            width: 180px; height: 180px; /* Foto sedikit lebih besar */
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #ccff00;
-            margin-bottom: 15px;
-            background: #333;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            width: 200px; height: 200px; border-radius: 50%; object-fit: cover;
+            border: 3px solid var(--neon-green); margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(204, 255, 0, 0.2);
         }
 
         .unit-badge {
-            background: #333;
-            color: #ccff00;
-            padding: 6px 15px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            border: 1px solid #ccff00;
-            margin-top: 15px;
-            display: inline-block;
-            font-weight: bold;
-        }
-
-        /* Kolom Kanan: Detail Data */
-        .modal-right {
-            flex: 1; /* Sisa lebar */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
+            background: #222; color: var(--neon-green);
+            padding: 8px 16px; border-radius: 50px; font-size: 0.85rem;
+            border: 1px solid var(--neon-green); display: inline-block;
+            font-weight: 700; margin-top: 15px; letter-spacing: 0.5px;
         }
 
         .detail-row {
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            border-bottom: 1px solid #222;
-            padding-bottom: 8px;
+            display: flex; justify-content: space-between;
+            border-bottom: 1px solid #222; padding: 12px 0;
         }
-        .detail-label { color: #888; display: inline-block; width: 120px; }
-        .detail-value { color: #fff; font-weight: 500; }
+        .detail-label { color: #666; font-weight: 600; }
+        .detail-value { color: #fff; font-family: 'JetBrains Mono', monospace; }
 
+        /* BIOGRAFI SCROLLABLE */
         .bio-box {
-            background: #222;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            margin-top: 15px;
-            color: #ccc;
+            background: #1a1a1a; padding: 20px; border-radius: 12px;
+            font-size: 0.95rem; line-height: 1.6; margin-top: 20px; color: #ccc;
             border: 1px solid #333;
-            max-height: 150px; /* Agar tidak terlalu panjang */
-            overflow-y: auto;
+            max-height: 150px; /* Batasi tinggi maksimal */
+            overflow-y: auto; /* Munculkan scroll jika teks kepanjangan */
         }
+        
+        /* Custom Scrollbar untuk Bio */
+        .bio-box::-webkit-scrollbar { width: 8px; }
+        .bio-box::-webkit-scrollbar-track { background: #111; border-radius: 10px; }
+        .bio-box::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .bio-box::-webkit-scrollbar-thumb:hover { background: var(--neon-green); }
 
         .btn-download {
-            display: block;
-            margin-top: 20px;
-            padding: 12px;
-            background: #ccff00;
-            color: #000;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 8px;
-            transition: 0.3s;
-            text-align: center;
+            display: block; margin-top: 25px; padding: 15px;
+            background: var(--neon-green); color: #000; text-decoration: none;
+            font-weight: 800; border-radius: 12px; text-align: center;
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
         }
-        .btn-download:hover { background: #fff; box-shadow: 0 0 15px rgba(204, 255, 0, 0.5); }
+        .btn-download:hover { 
+            background: #fff; 
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.6); 
+        }
 
-        /* Responsif untuk HP (Balik jadi susun ke bawah) */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .modal-layout { flex-direction: column; text-align: center; }
-            .modal-left { border-right: none; border-bottom: 1px solid #333; padding-right: 0; padding-bottom: 20px; margin-bottom: 20px; width: 100%; }
-            .detail-label { display: block; width: 100%; margin-bottom: 2px; }
+            .modal-left { border-right: none; border-bottom: 1px solid #333; padding-right: 0; padding-bottom: 30px; margin-bottom: 20px; }
+            .container { padding: 20px; }
+            .input-group { flex-direction: column; }
+            .btn-test { width: 100%; padding: 15px; }
         }
-
     </style>
 </head>
 <body>
@@ -304,44 +329,43 @@
     <div class="container">
         <div class="header">
             <div>
-                <h2>Halo NCTzen</h2>
-                <div class="sub-text">Selamat datang, <strong><%= user.nama_lengkap %></strong></div>
+                <h2>Halo, NCTzen!</h2>
+                <div class="sub-text">Selamat Datangg! <strong><%= user.nama_lengkap %></strong></div>
             </div>
             <a href="/developer/logout" class="btn-logout">Logout</a>
         </div>
 
-        <hr>
-
         <div class="key-section">
-            <h3 style="margin-top:0;">API Key saat ini</h3>
+            <h3>API Key saat ini</h3>
             
             <% if (user.api_key) { %>
                 <div class="key-box"><%= user.api_key %></div>
-                <p>Status Key: 
+                <p style="color:#888; font-size:0.9rem; margin-top:10px;">
+                    Status: 
                     <% if(user.status == 'active') { %>
                         <span class="status-active">AKTIF</span>
                     <% } else { %>
                         <span class="status-inactive">NON-AKTIF</span>
                     <% } %>
                 </p>
-                <p style="color:#888; font-size:0.9rem;">Gunakan key ini untuk mengakses endpoint <code>/api/v1/members</code></p>
+                <p style="color:#555; font-size:0.85rem; margin-bottom:20px;">Pastikan API Key mu aktif ya!!</p>
             <% } else { %>
-                <p style="color:#888;">Anda belum memiliki API Key. Silakan generate di bawah ini.</p>
+                <p style="color:#888;">Anda belum memiliki API Key.</p>
             <% } %>
 
             <form action="/developer/generate-key" method="POST">
                 <button type="submit" class="btn-gen">
-                     <%= user.api_key ? 'RESET / GANTI KEY' : 'GENERATE NEW KEY' %>
+                     <%= user.api_key ? 'Reset Key' : 'Generate API Key' %>
                 </button>
             </form>
         </div>
 
         <div class="test-area">
-            <h3 style="margin-top:0;">API AREA</h3>
-            <p style="color:#666;">Salin API Key di atas, lalu tempel disini untuk melihat data:</p>
+            <h3>API ZONE</h3>
+            <p style="color:#666; font-size:0.9rem;">Tempel API Key di bawah untuk melihat data.</p>
             
             <div class="input-group">
-                <input type="text" id="inputKey" placeholder="Tempel API Key di sini..." value="">
+                <input type="text" id="inputKey" placeholder="Paste your API Key here..." value="">
                 <button onclick="testApi()" class="btn-test">LIHAT DATA</button>
             </div>
 
@@ -356,11 +380,9 @@
             <div class="modal-layout">
                 <div class="modal-left">
                     <img id="mFoto" src="" class="modal-img" alt="Foto Member">
-                    
-                    <h2 id="mNama" style="margin:0; color:#ccff00; font-size:1.8rem;">Nama</h2>
-                    <h4 id="mNamaLengkap" style="margin:5px 0 0 0; color:#fff; font-weight:normal;">Lengkap</h4>
-                    <p id="mPosisi" style="color:#aaa; margin-top:5px; font-style:italic;">Posisi</p>
-                    
+                    <h2 id="mNama" style="margin:0; color:var(--neon-green); font-size:2rem; line-height:1;">Nama</h2>
+                    <h4 id="mNamaLengkap" style="margin:8px 0 0 0; color:#fff; font-weight:normal;">Nama Lengkap</h4>
+                    <p id="mPosisi" style="color:#888; margin-top:5px; font-style:italic;">Posisi</p>
                     <span id="mUnit" class="unit-badge">Unit Name</span>
                 </div>
 
@@ -368,7 +390,7 @@
                     <div>
                         <div class="detail-row">
                             <span class="detail-label">ID Database</span>
-                            <span id="mId" class="detail-value" style="color:#ccff00;"></span>
+                            <span id="mId" class="detail-value" style="color:var(--neon-green);"></span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Asal Negara</span>
@@ -379,16 +401,15 @@
                             <span id="mTgl" class="detail-value"></span>
                         </div>
 
-                        <div style="margin-top:15px; font-weight:bold; color:#ccff00;">Biografi Singkat:</div>
+                        <div style="margin-top:20px; font-weight:bold; color:var(--neon-green); font-size:0.9rem;">BIOGRAFI SINGKAT</div>
                         <div id="mBio" class="bio-box"></div>
                     </div>
 
                     <a id="btnDownload" href="#" class="btn-download">
-                         DOWNLOAD DATA (.TXT)
+                        ⬇️ Download Data (.TXT)
                     </a>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -403,7 +424,7 @@
                 return;
             }
 
-            container.innerHTML = '<p style="text-align:center; margin-top:30px; font-weight:bold; color:#666;">⏳ Sedang mengambil data dari server...</p>';
+            container.innerHTML = '<p style="text-align:center; margin-top:30px; font-weight:bold; color:#666;">⏳ Fetching data...</p>';
 
             try {
                 const response = await fetch(`/api/v1/members?key=${key}`);
@@ -411,14 +432,14 @@
 
                 if(data.status === 'error') {
                     container.innerHTML = `
-                        <div style="background:#ffe6e6; color:red; padding:15px; border-radius:8px; margin-top:20px; border:1px solid red; text-align:center;">
+                        <div style="background:rgba(255, 77, 77, 0.1); color:#ff4d4d; padding:15px; border-radius:12px; margin-top:20px; border:1px solid #ff4d4d; text-align:center;">
                              <strong>AKSES DITOLAK:</strong> ${data.message}
                         </div>
                     `;
                 } else {
                     let htmlContent = `
-                        <div style="margin-top:20px; text-align:center; color:green;">
-                            Berhasil memuat <strong>${data.total_data}</strong> data member.
+                        <div style="margin-top:20px; text-align:center; color:var(--neon-green); font-family:'JetBrains Mono'; font-size:0.9rem;">
+                            > Status: 200 OK | Total: ${data.total_data} Members loaded.
                         </div>
                         <div class="result-grid">
                     `;
@@ -429,12 +450,12 @@
 
                         htmlContent += `
                             <div class="mini-card" onclick="openModal(${memberString})">
-                                <span class="badge-id">ID: ${member.id}</span>
+                                <span class="badge-id">#${member.id}</span>
                                 <img src="${fotoUrl}" class="card-img" alt="${member.nama_panggung}">
                                 <div class="card-body">
                                     <h4>${member.nama_panggung}</h4>
                                     <p>${member.posisi}</p>
-                                    <small style="display:block; margin-top:10px; color:#ccff00;"> Lihat Detail Data</small>
+                                    <small style="display:block; margin-top:10px; color:var(--neon-green); opacity:0.7;">Click for Details ↗</small>
                                 </div>
                             </div>
                         `;
@@ -445,34 +466,28 @@
                 }
 
             } catch (error) {
-                container.innerHTML = `<p style="color:red; text-align:center;">Gagal menghubungi server. Pastikan server Node.js menyala.</p>`;
+                container.innerHTML = `<p style="color:#ff4d4d; text-align:center;">Server Error / Offline.</p>`;
             }
         }
 
-        // 2. Fungsi Buka Modal Detail (Logic Data)
+        // 2. Fungsi Buka Modal Detail (Logic Tetap Sama)
         function openModal(member) {
             const key = document.getElementById('inputKey').value;
 
-            // Foto
             document.getElementById('mFoto').src = member.foto ? `/images/${member.foto}` : 'https://via.placeholder.com/300';
-            
-            // Kiri
             document.getElementById('mNama').innerText = member.nama_panggung;
             document.getElementById('mNamaLengkap').innerText = member.nama_lengkap || '-';
             document.getElementById('mPosisi').innerText = member.posisi;
             document.getElementById('mUnit').innerText = member.unit_names || 'No Unit';
 
-            // Kanan
             document.getElementById('mId').innerText = member.id;
             document.getElementById('mAsal').innerText = member.asal_negara;
             document.getElementById('mTgl').innerText = member.tgl_lahir ? new Date(member.tgl_lahir).toLocaleDateString() : '-';
             document.getElementById('mBio').innerText = member.biografi || "Tidak ada data biografi.";
 
-            // Button
             const downloadUrl = `/api/v1/download/member/${member.id}?key=${key}`;
             document.getElementById('btnDownload').href = downloadUrl;
 
-            // Show
             document.getElementById('detailModal').style.display = 'flex';
         }
 
