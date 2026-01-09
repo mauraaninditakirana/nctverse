@@ -1,37 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Edit User</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User - NCTverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; margin: 0; background: #f4f4f4; }
-        .content { margin-left: 250px; padding: 40px; width: 100%; }
-        .form-card { background: white; padding: 30px; border-radius: 10px; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;}
-        label { font-weight: bold; color: #333; }
-        button { background: #ccff00; border: none; padding: 12px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        button:hover { background: #b3e600; }
-        a { text-decoration: none; color: #666; margin-left: 15px; }
+        :root {
+            --neon-green: #ccff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 { 
+            margin: 0 0 30px 0; 
+            text-align: center; 
+            color: var(--text-main); 
+            font-weight: 800;
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            font-size: 0.9rem; 
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--neon-green);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(204, 255, 0, 0.1);
+        }
+
+        button {
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        button:hover { background: #fff; transform: translateY(-2px); }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { color: var(--neon-green); }
     </style>
 </head>
 <body>
-    <%- include('../partials/sidebar') %>
-    <div class="content">
-        <h1>✏️ Edit Data User</h1>
-        <div class="form-card">
-            <form action="/admin/users/update/<%= user.id %>" method="POST">
-                <label>Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" value="<%= user.nama_lengkap %>" required>
 
-                <label>Email</label>
-                <input type="email" name="email" value="<%= user.email %>" required>
+    <div class="form-container">
+        <h2>Edit data User</h2>
+        
+        <form action="/admin/users/update/<%= user.id %>" method="POST">
+            <label>Nama Lengkap</label>
+            <input type="text" name="nama_lengkap" value="<%= user.nama_lengkap %>" required>
 
-                <label>Password</label>
-                <input type="text" name="password" value="<%= user.password %>" required>
+            <label>Email</label>
+            <input type="email" name="email" value="<%= user.email %>" required>
 
-                <button type="submit">💾 Simpan Perubahan</button>
-                <a href="/admin/users">Batal</a>
-            </form>
-        </div>
+            <label>Password</label>
+            <input type="text" name="password" value="<%= user.password %>" required>
+
+            <button type="submit">Simpan Perubahan</button>
+            <a href="/admin/users" class="back-link">Batal</a>
+        </form>
     </div>
+
 </body>
 </html>

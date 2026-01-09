@@ -4,98 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail User - NCTverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --neon-green: #ccff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
             margin: 0;
-            display: flex;
         }
 
         .content {
-            margin-left: 250px;
-            padding: 40px;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 50px;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
-        h1 { margin-top: 0; color: #333; }
-        
+        /* HEADER */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        h1 { margin: 0; font-weight: 800; color: var(--text-main); }
+        .back-btn { color: var(--text-muted); text-decoration: none; font-weight: 600; }
+        .back-btn:hover { color: var(--neon-green); }
+
         /* CARD STYLE */
         .card {
-            background: white;
+            background: var(--card-bg);
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
             margin-bottom: 30px;
         }
 
-        .row {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            display: flex;
-        }
-        .label {
-            font-weight: bold;
-            width: 180px;
-            color: #555;
-        }
-        .value { color: #000; font-weight: 500; }
-
-        /* TABEL HISTORY KEY */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            border: 1px solid #ddd;
-        }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background-color: #111; color: #ccff00; font-size: 0.9rem; }
-        
-        .key-code {
-            font-family: monospace;
-            background: #eee;
-            padding: 4px 8px;
-            border-radius: 4px;
-            color: #333;
-            border: 1px solid #ccc;
-        }
-
-        /* STATUS BADGE */
-        .badge { padding: 5px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: bold; }
-        .badge-active { background: #d4edda; color: #155724; }
-        .badge-inactive { background: #f8d7da; color: #721c24; }
-
-        /* TOMBOL TOGGLE */
-        .btn-toggle {
-            text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: white;
+        h3 { 
+            margin-top: 0; 
+            color: var(--text-main); 
+            border-bottom: 2px solid var(--neon-green); 
+            padding-bottom: 10px; 
             display: inline-block;
+            font-size: 1.2rem;
         }
-        .bg-red { background: #dc3545; }
-        .bg-green { background: #28a745; }
-        .bg-red:hover { background: #c82333; }
-        .bg-green:hover { background: #218838; }
 
+        .row {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+        .row:last-child { border-bottom: none; }
+
+        .label { width: 180px; color: var(--text-muted); font-weight: 600; }
+        .value { color: #fff; font-family: 'JetBrains Mono', monospace; }
+
+        /* TABEL KEY */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 15px; border-bottom: 1px solid var(--border-color); text-align: left; }
+        
+        th { 
+            background-color: #000; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            font-size: 0.8rem; 
+            font-weight: 700;
+        }
+
+        .key-code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #222;
+            padding: 5px 10px;
+            border-radius: 6px;
+            color: var(--neon-green);
+            border: 1px solid #333;
+            font-size: 0.9rem;
+        }
+
+        /* BADGES */
+        .badge { padding: 5px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; }
+        .badge-active { background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid #28a745; }
+        .badge-inactive { background: rgba(220, 53, 69, 0.2); color: #dc3545; border: 1px solid #dc3545; }
+
+        /* BUTTON TOGGLE */
+        .btn-toggle {
+            text-decoration: none; padding: 6px 15px; border-radius: 6px;
+            font-size: 0.8rem; font-weight: 700; display: inline-block; transition: 0.3s;
+        }
+        .bg-red { background: transparent; border: 1px solid #dc3545; color: #dc3545; }
+        .bg-green { background: transparent; border: 1px solid #28a745; color: #28a745; }
+        
+        .bg-red:hover { background: #dc3545; color: #fff; }
+        .bg-green:hover { background: #28a745; color: #fff; }
+
+        @media (max-width: 768px) {
+            .content { padding: 20px; }
+            .row { flex-direction: column; gap: 5px; }
+            table { display: block; overflow-x: auto; }
+        }
     </style>
 </head>
 <body>
 
-    <%- include('../partials/sidebar') %>
+    <%- include('../partials/navbar') %>
 
     <div class="content">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div class="page-header">
             <h1>🔍 Detail & History User</h1>
-            <a href="/admin/users" style="text-decoration:none; color:#666; font-weight:bold;">← Kembali ke Daftar</a>
+            <a href="/admin/users" class="back-btn">← Kembali ke Daftar</a>
         </div>
 
         <div class="card">
-            <h3 style="margin-top:0; color:#333; border-bottom:2px solid #ccff00; padding-bottom:10px; display:inline-block;">👤 Data Personal</h3>
+            <h3>👤 Data Personal</h3>
             
             <div class="row">
                 <span class="label">Nama Lengkap</span>
@@ -109,16 +143,15 @@
                 <span class="label">Password</span>
                 <span class="value">: <%= user.password %></span>
             </div>
-            <div class="row" style="border:none;">
+            <div class="row">
                 <span class="label">Bergabung Sejak</span>
-                <span class="value">: <%= user.created_at %></span>
+                <span class="value">: <%= new Date(user.created_at).toLocaleString() %></span>
             </div>
         </div>
 
         <div class="card">
-            <h3 style="margin-top:0; color:#333; border-bottom:2px solid #007bff; padding-bottom:10px; display:inline-block;">🔑 Riwayat API Key</h3>
-            <p style="color:#666; margin-bottom:20px;">Daftar API Key User</p>
-
+            <h3>Riwayat API Key</h3>
+            
             <table>
                 <thead>
                     <tr>
@@ -130,12 +163,12 @@
                 </thead>
                 <tbody>
                     <% if(keys.length === 0) { %>
-                        <tr><td colspan="4" style="text-align:center; padding:20px;">User ini belum pernah generate API Key.</td></tr>
+                        <tr><td colspan="4" style="text-align:center; padding:30px; color:#666;">User ini belum pernah generate API Key.</td></tr>
                     <% } %>
 
                     <% keys.forEach(k => { %>
                     <tr>
-                        <td><%= new Date(k.created_at).toLocaleString() %></td>
+                        <td style="color:#ccc;"><%= new Date(k.created_at).toLocaleString() %></td>
                         <td><span class="key-code"><%= k.key_string %></span></td>
                         <td>
                             <% if(k.status == 'active') { %>
@@ -146,13 +179,9 @@
                         </td>
                         <td>
                             <% if(k.status == 'active') { %>
-                                <a href="/admin/keys/toggle/<%= k.id %>/<%= user.id %>" class="btn-toggle bg-red">
-                                    Matikan Key
-                                </a>
+                                <a href="/admin/keys/toggle/<%= k.id %>/<%= user.id %>" class="btn-toggle bg-red">Matikan Key</a>
                             <% } else { %>
-                                <a href="/admin/keys/toggle/<%= k.id %>/<%= user.id %>" class="btn-toggle bg-green">
-                                    Aktifkan Key
-                                </a>
+                                <a href="/admin/keys/toggle/<%= k.id %>/<%= user.id %>" class="btn-toggle bg-green">Aktifkan Key</a>
                             <% } %>
                         </td>
                     </tr>
@@ -160,7 +189,6 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 
 </body>
