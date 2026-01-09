@@ -26,7 +26,7 @@ db.connect((err) => {
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json());
 app.use(session({
     secret: 'nct-super-secret-key',
     resave: false,
@@ -227,7 +227,6 @@ app.get('/admin', cekAdmin, (req, res) => {
 // --- ADMIN: MEMBERS CRUD (MANY-TO-MANY) ---
 
 app.get('/admin/members', cekAdmin, (req, res) => {
-    // Tampilkan data dengan semua unitnya
     db.query(sqlGetMembers + " ORDER BY members.id DESC", (err, r) => {
         if (isPostman(req)) return res.json({ status: "success", data: r });
         res.render('admin/members', { members: r, page: 'members' });
@@ -238,48 +237,113 @@ app.get('/admin/members/add', cekAdmin, (req, res) => {
     db.query('SELECT * FROM units', (err, r) => res.render('admin/member_form', { units: r, page: 'members' }));
 });
 
-// ✅ ADD MEMBER (SIMPAN BANYAK UNIT)
+// ADD MEMBER (SIMPAN BANYAK UNIT) - FIXED VERSION
 app.post('/admin/members/add', cekAdmin, (req, res) => {
+    console.log("========== ADD MEMBER DEBUG ==========");
+    console.log("BODY REQ:", JSON.stringify(req.body, null, 2));
+    console.log("======================================");
+
     const { nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, units } = req.body;
     
     // 1. Insert Member dulu
     db.query('INSERT INTO members (nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto) VALUES (?, ?, ?, ?, ?, ?, ?)', 
     [nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto], (err, result) => {
-        if(err) return res.send("Error Insert Member");
         
+        if(err) {
+            console.error("❌ ERROR SQL MEMBER:", err);
+            return res.status(500).json({status: "error", message: "Gagal Insert Member", detail: err.sqlMessage});
+        }
+        
+        console.log("✅ Member ID Baru:", result.insertId);
         const newMemberId = result.insertId;
         
-        // 2. Jika ada unit yang dipilih, masukkan ke tabel member_units
-        if (units) {
-            // Pastikan units bentuknya array (kalo cuma pilih 1, dia jadi string)
+        // 2. Jika ada unit yang dipilih
+        if (units && (Array.isArray(units) ? units.length > 0 : units)) {
             const unitArray = Array.isArray(units) ? units : [units];
             
-            // Siapkan data untuk bulk insert [[1, 2], [1, 5]] (member_id, unit_id)
-            const values = unitArray.map(uId => [newMemberId, uId]);
-            
-            db.query('INSERT INTO member_units (member_id, unit_id) VALUES ?', [values], (err) => {
-                if (isPostman(req)) return res.json({ status: "success", message: "Member & Units Added" });
-                res.redirect('/admin/members');
+            // ✅ VALIDASI: Cek apakah semua unit_id valid
+            const placeholders = unitArray.map(() => '?').join(',');
+            db.query(`SELECT id FROM units WHERE id IN (${placeholders})`, unitArray, (errCheck, validUnits) => {
+                
+                if (errCheck) {
+                    console.error("❌ ERROR CEK UNITS:", errCheck);
+                    return res.status(500).json({status: "error", message: "Error validasi units"});
+                }
+                
+                // Jika ada unit yang tidak valid
+                const validIds = validUnits.map(u => u.id);
+                const invalidIds = unitArray.filter(id => !validIds.includes(parseInt(id)));
+                
+                if (invalidIds.length > 0) {
+                    console.error("❌ Unit ID tidak valid:", invalidIds);
+                    return res.status(400).json({
+                        status: "error", 
+                        message: "Member tersimpan tapi unit ID tidak valid!",
+                        member_id: newMemberId,
+                        invalid_unit_ids: invalidIds,
+                        valid_unit_ids: validIds
+                    });
+                }
+                
+                // Semua unit valid, insert ke member_units
+                const values = validIds.map(uId => [newMemberId, uId]);
+                
+                db.query('INSERT INTO member_units (member_id, unit_id) VALUES ?', [values], (errUnits) => {
+                    if(errUnits) {
+                        console.error("❌ ERROR SQL UNITS:", errUnits);
+                        return res.status(500).json({
+                            status: "error",
+                            message: "Member tersimpan tapi gagal tambah unit",
+                            detail: errUnits.sqlMessage
+                        });
+                    }
+                    
+                    console.log("✅ Units Berhasil Ditambahkan!");
+                    if (isPostman(req)) return res.json({ 
+                        status: "success", 
+                        message: "Member & Units Added",
+                        member_id: newMemberId,
+                        units_added: validIds
+                    });
+                    res.redirect('/admin/members');
+                });
             });
+            
         } else {
-            if (isPostman(req)) return res.json({ status: "success", message: "Member Added (No Units)" });
+            console.log("⚠️  Tidak ada unit yang dipilih");
+            if (isPostman(req)) return res.json({ 
+                status: "success", 
+                message: "Member Added (No Units)",
+                member_id: newMemberId 
+            });
             res.redirect('/admin/members');
         }
     });
 });
 
+// TAMBAHAN PENTING: ROUTE GET MEMBER BY ID (UTK ADMIN POSTMAN)
+app.get('/admin/members/:id', cekAdmin, (req, res, next) => {
+    // Hindari konflik dengan route lain seperti 'add' atau 'edit'
+    // Kita cek apakah :id adalah angka
+    if(isNaN(req.params.id)) return next();
+
+    const sql = sqlGetMembers + " HAVING members.id = ?";
+    db.query(sql, [req.params.id], (err, results) => {
+        if(results.length === 0) return res.status(404).json({status: "fail", message: "Member Not Found"});
+        res.json({ status: "success", data: results[0] });
+    });
+});
+
+
 app.get('/admin/members/edit/:id', cekAdmin, (req, res) => {
     db.query('SELECT * FROM members WHERE id=?', [req.params.id], (e, memberRes) => {
-        // Ambil daftar unit yang SUDAH dipilih member ini
         db.query('SELECT unit_id FROM member_units WHERE member_id=?', [req.params.id], (e, selectedUnits) => {
-            // Ubah ke array simple [1, 3, 5]
             const currentUnitIds = selectedUnits.map(u => u.unit_id);
-            
             db.query('SELECT * FROM units', (err, allUnits) => {
                  res.render('admin/member_edit', { 
                      member: memberRes[0], 
                      units: allUnits, 
-                     currentUnitIds: currentUnitIds, // Kirim ke view utk diceklis otomatis
+                     currentUnitIds: currentUnitIds, 
                      page: 'members' 
                 });
             });
@@ -287,18 +351,14 @@ app.get('/admin/members/edit/:id', cekAdmin, (req, res) => {
     });
 });
 
-// ✅ UPDATE MEMBER (RESET UNIT)
+// UPDATE MEMBER (RESET UNIT)
 app.post('/admin/members/update/:id', cekAdmin, (req, res) => {
     const { nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, units } = req.body;
     
-    // 1. Update data dasar
     db.query('UPDATE members SET nama_panggung=?, nama_lengkap=?, tgl_lahir=?, asal_negara=?, posisi=?, biografi=?, foto=? WHERE id=?', 
     [nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, req.params.id], () => {
         
-        // 2. Hapus semua unit lama member ini
         db.query('DELETE FROM member_units WHERE member_id=?', [req.params.id], () => {
-            
-            // 3. Masukkan unit baru (jika ada yang dipilih)
             if (units) {
                 const unitArray = Array.isArray(units) ? units : [units];
                 const values = unitArray.map(uId => [req.params.id, uId]);
@@ -316,7 +376,6 @@ app.post('/admin/members/update/:id', cekAdmin, (req, res) => {
 });
 
 app.get('/admin/members/delete/:id', cekAdmin, (req, res) => {
-    // Karena ON DELETE CASCADE di database, hapus di tabel members otomatis hapus di member_units
     db.query('DELETE FROM members WHERE id=?', [req.params.id], () => {
         if (isPostman(req)) return res.json({ status: "success", message: "Member Deleted" });
         res.redirect('/admin/members');
