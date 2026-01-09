@@ -4,96 +4,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Member - <%= member.nama_panggung %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; padding: 40px; }
-        .form-container { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { margin-top: 0; color: #111; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input[type="text"], input[type="date"], textarea {
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;
+        /* CSS YANG SAMA DENGAN FORM ADD (COMPACT VERSION) */
+        :root {
+            --neon-green: #ccff00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333;
         }
-        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px; }
-        .checkbox-item { background: #eee; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; 
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            max-width: 950px;
+            width: 95%;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        h2 { margin: 0 0 15px 0; color: var(--text-main); font-weight: 800; text-align: center; font-size: 1.3rem; }
         
-        /* Style untuk checkbox yang dipilih agar terlihat beda */
-        input[type="checkbox"]:checked + span { font-weight: bold; color: #007bff; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 8px; }
+        
+        label { display: block; margin-bottom: 3px; font-weight: 600; color: var(--text-muted); font-size: 0.8rem; }
+        
+        input, textarea, select {
+            width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; 
+            box-sizing: border-box; background: #000; color: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem;
+        }
+
+        input[type="date"] { color-scheme: dark; }
+        input:focus, textarea:focus { border-color: var(--neon-green); outline: none; }
+
+        .checkbox-group { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px; margin-top: 2px;
+            max-height: 80px; overflow-y: auto;
+        }
+        
+        .checkbox-item {
+            background: #222; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; 
+            cursor: pointer; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 5px; color: #ccc;
+        }
+        
+        .checkbox-item:has(input:checked) { border-color: var(--neon-green); color: var(--neon-green); background: rgba(204, 255, 0, 0.1); }
+        input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--neon-green); }
+
+        .full-width { grid-column: span 2; display: flex; gap: 10px; margin-top: 10px; }
 
         button {
-            background: #007bff; color: white; border: none; padding: 15px 30px; 
-            font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; font-size: 1rem;
+            background: var(--neon-green); color: #000; border: none; padding: 10px;
+            font-weight: 800; cursor: pointer; border-radius: 8px; flex: 2;
+            font-size: 0.9rem; text-transform: uppercase; transition: 0.3s;
         }
-        button:hover { background: #0056b3; }
-        .back { display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; }
+        button:hover { background: #fff; transform: translateY(-2px); }
+
+        .back-btn { 
+            display: block; text-align: center; background: #222; color: #fff; 
+            text-decoration: none; padding: 10px; border-radius: 8px; flex: 1;
+            font-size: 0.9rem; font-weight: 600; border: 1px solid #333;
+        }
+        .back-btn:hover { border-color: var(--text-muted); }
     </style>
 </head>
 <body>
 
     <div class="form-container">
-        <h2>✏️ Edit Data: <%= member.nama_panggung %></h2>
+        <h2>✏️ Edit Data: <span style="color:var(--neon-green)"><%= member.nama_panggung %></span></h2>
         
-        <form action="/admin/members/update/<%= member.id %>" method="POST">
+        <form action="/admin/members/update/<%= member.id %>" method="POST" class="form-grid">
             
-            <div class="form-group">
-                <label>Nama Panggung</label>
-                <input type="text" name="nama_panggung" value="<%= member.nama_panggung %>" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" value="<%= member.nama_lengkap %>" required>
-            </div>
+            <div class="left-col">
+                <div class="form-group">
+                    <label>Nama Panggung</label>
+                    <input type="text" name="nama_panggung" value="<%= member.nama_panggung %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="nama_lengkap" value="<%= member.nama_lengkap %>" required>
+                </div>
 
-            <div class="form-group">
-                <label>Tanggal Lahir (Format: YYYY-MM-DD)</label>
-                <% 
-                    let dateStr = '';
-                    if(member.tgl_lahir) {
-                        let tgl = new Date(member.tgl_lahir);
-                        dateStr = tgl.toISOString().split('T')[0];
-                    }
-                %>
-                <input type="date" name="tgl_lahir" value="<%= dateStr %>" required>
-            </div>
+                <div class="form-group">
+                    <label>Tanggal Lahir</label>
+                    <% 
+                        let dateStr = '';
+                        if(member.tgl_lahir) {
+                            let tgl = new Date(member.tgl_lahir);
+                            dateStr = tgl.toISOString().split('T')[0];
+                        }
+                    %>
+                    <input type="date" name="tgl_lahir" value="<%= dateStr %>" required>
+                </div>
 
-            <div class="form-group">
-                <label>Asal Negara</label>
-                <input type="text" name="asal_negara" value="<%= member.asal_negara %>" required>
-            </div>
+                <div class="form-group">
+                    <label>Asal Negara</label>
+                    <input type="text" name="asal_negara" value="<%= member.asal_negara %>" required>
+                </div>
 
-            <div class="form-group">
-                <label>Posisi</label>
-                <input type="text" name="posisi" value="<%= member.posisi %>">
-            </div>
-
-            <div class="form-group">
-                <label>Biografi Singkat</label>
-                <textarea name="biografi" rows="4"><%= member.biografi %></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Nama File Foto</label>
-                <input type="text" name="foto" value="<%= member.foto %>">
-            </div>
-
-            <div class="form-group">
-                <label>Unit Member (Boleh pilih lebih dari satu):</label>
-                <div class="checkbox-group">
-                    <% units.forEach(u => { %>
-                        <label class="checkbox-item">
-                            <input type="checkbox" name="units" value="<%= u.id %>" 
-                                <% if (currentUnitIds.includes(u.id)) { %> checked <% } %> 
-                            > 
-                            <span><%= u.nama_unit %></span>
-                        </label>
-                    <% }) %>
+                <div class="form-group">
+                    <label>Posisi</label>
+                    <input type="text" name="posisi" value="<%= member.posisi %>">
                 </div>
             </div>
 
-            <button type="submit">SIMPAN PERUBAHAN</button>
-        </form>
+            <div class="right-col">
+                <div class="form-group">
+                    <label>Nama File Foto</label>
+                    <input type="text" name="foto" value="<%= member.foto %>">
+                </div>
 
-        <a href="/admin/members" class="back">Batal & Kembali</a>
+                <div class="form-group">
+                    <label>Biografi Singkat</label>
+                    <textarea name="biografi" rows="3"><%= member.biografi %></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Unit Member (Checklist):</label>
+                    <div class="checkbox-group">
+                        <% units.forEach(u => { %>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="units" value="<%= u.id %>" 
+                                    <% if (currentUnitIds.includes(u.id)) { %> checked <% } %> 
+                                > 
+                                <span><%= u.nama_unit %></span>
+                            </label>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="full-width">
+                <a href="/admin/members" class="back-btn">Batal</a>
+                <button type="submit">SIMPAN PERUBAHAN</button>
+            </div>
+
+        </form>
     </div>
 
 </body>
