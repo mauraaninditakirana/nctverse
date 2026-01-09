@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Member - <%= member.nama_panggung %></title>
     <style>
-        /* Kita pakai style yang sama kayak Add Form biar konsisten */
         body { font-family: sans-serif; background: #f4f4f4; padding: 40px; }
         .form-container { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         h2 { margin-top: 0; color: #111; }
@@ -17,6 +16,9 @@
         .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px; }
         .checkbox-item { background: #eee; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; }
         
+        /* Style untuk checkbox yang dipilih agar terlihat beda */
+        input[type="checkbox"]:checked + span { font-weight: bold; color: #007bff; }
+
         button {
             background: #007bff; color: white; border: none; padding: 15px 30px; 
             font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; font-size: 1rem;
@@ -45,9 +47,11 @@
             <div class="form-group">
                 <label>Tanggal Lahir (Format: YYYY-MM-DD)</label>
                 <% 
-                   // Trik kecil untuk memformat tanggal database ke input HTML
-                   let tgl = new Date(member.tgl_lahir);
-                   let dateStr = tgl.toISOString().split('T')[0];
+                    let dateStr = '';
+                    if(member.tgl_lahir) {
+                        let tgl = new Date(member.tgl_lahir);
+                        dateStr = tgl.toISOString().split('T')[0];
+                    }
                 %>
                 <input type="date" name="tgl_lahir" value="<%= dateStr %>" required>
             </div>
@@ -73,14 +77,14 @@
             </div>
 
             <div class="form-group">
-                <label>Unit Member (Centang untuk mengubah):</label>
+                <label>Unit Member (Boleh pilih lebih dari satu):</label>
                 <div class="checkbox-group">
                     <% units.forEach(u => { %>
                         <label class="checkbox-item">
                             <input type="checkbox" name="units" value="<%= u.id %>" 
                                 <% if (currentUnitIds.includes(u.id)) { %> checked <% } %> 
                             > 
-                            <%= u.nama_unit %>
+                            <span><%= u.nama_unit %></span>
                         </label>
                     <% }) %>
                 </div>

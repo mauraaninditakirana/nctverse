@@ -35,42 +35,30 @@ app.use(session({
 }));
 
 // ==========================================
-// 3. MIDDLEWARE & HELPER (LOGIKA HYBRID)
+// 3. MIDDLEWARE & HELPER
 // ==========================================
 
-// Fungsi Helper: Deteksi Postman
 const isPostman = (req) => {
     const userAgent = req.headers['user-agent'];
     return userAgent && userAgent.includes('Postman');
 };
 
-// Cek Admin (Hybrid Auth Check)
 const cekAdmin = (req, res, next) => {
-    if (req.session.role === 'admin') {
-        next();
-    } else {
-        if (isPostman(req)) {
-            return res.status(401).json({ status: "error", message: "Akses Ditolak: Harap LOGIN ADMIN terlebih dahulu!" });
-        } else {
-            res.redirect('/login');
-        }
+    if (req.session.role === 'admin') next();
+    else {
+        if (isPostman(req)) return res.status(401).json({ status: "error", message: "Harap LOGIN ADMIN dahulu!" });
+        res.redirect('/login');
     }
 };
 
-// Cek User Developer (Hybrid Auth Check)
 const cekUser = (req, res, next) => {
-    if (req.session.role === 'user') {
-        next();
-    } else {
-        if (isPostman(req)) {
-            return res.status(401).json({ status: "error", message: "Akses Ditolak: Harap LOGIN USER terlebih dahulu!" });
-        } else {
-            res.redirect('/developer/login');
-        }
+    if (req.session.role === 'user') next();
+    else {
+        if (isPostman(req)) return res.status(401).json({ status: "error", message: "Harap LOGIN USER dahulu!" });
+        res.redirect('/developer/login');
     }
 };
 
-// Cek API Key
 const cekApiKey = (req, res, next) => {
     const key = req.query.key || req.headers['key']; 
     if (!key) return res.status(401).json({ status: "error", message: "API Key diperlukan!" });
@@ -78,31 +66,28 @@ const cekApiKey = (req, res, next) => {
     db.query('SELECT * FROM api_keys WHERE key_string = ?', [key], (err, results) => {
         if (err) return res.status(500).json({ status: "error", message: "Database Error" });
         if (results.length === 0) return res.status(403).json({ status: "error", message: "API Key tidak valid." });
-        if (results[0].status === 'inactive') return res.status(403).json({ status: "error", message: "API Key ini telah DINONAKTIFKAN oleh Admin." });
+        if (results[0].status === 'inactive') return res.status(403).json({ status: "error", message: "API Key ini NON-AKTIF." });
         next(); 
     });
 };
 
 
 // ==========================================
-// 4. ROUTE PUBLIC & AUTH (USER SIDE - TETAP)
+// 4. ROUTE AUTH & PUBLIC
 // ==========================================
 
 app.get('/', (req, res) => res.render('index'));
 
-// Register Developer
 app.get('/developer/register', (req, res) => res.render('user/register'));
 app.post('/developer/register', (req, res) => {
     const { email, password, nama_lengkap } = req.body;
     db.query('INSERT INTO api_users (email, password, nama_lengkap) VALUES (?, ?, ?)', [email, password, nama_lengkap], (err) => {
-        if(err) return res.send("Email error/sudah terdaftar.");
-        
-        if (isPostman(req)) res.json({ status: "success", message: "HORE! User berhasil terdaftar. Silakan login." });
+        if(err) return res.send("Email sudah terdaftar.");
+        if (isPostman(req)) res.json({ status: "success", message: "Register Berhasil! Silakan login." });
         else res.redirect('/developer/login');
     });
 });
 
-// Login Developer
 app.get('/developer/login', (req, res) => res.render('user/login'));
 app.post('/developer/login', (req, res) => {
     const { email, password } = req.body;
@@ -111,19 +96,16 @@ app.post('/developer/login', (req, res) => {
             req.session.role = 'user';
             req.session.userId = results[0].id;
             req.session.userName = results[0].nama_lengkap;
-            
-            if (isPostman(req)) res.send("LOGIN DEVELOPER BERHASIL! Silakan akses dashboard.");
+            if (isPostman(req)) res.send("LOGIN USER BERHASIL!");
             else res.redirect('/developer/dashboard');
         } else {
-            res.send("Login Gagal: Email atau Password Salah");
+            res.send("Login Gagal");
         }
     });
 });
 
-// Dashboard Developer
 app.get('/developer/dashboard', cekUser, (req, res) => {
     db.query('SELECT * FROM api_users WHERE id = ?', [req.session.userId], (err, userRes) => {
-        if(userRes.length === 0) return res.redirect('/developer/login');
         db.query('SELECT * FROM api_keys WHERE user_id = ? ORDER BY id DESC LIMIT 1', [req.session.userId], (err, keyRes) => {
             const userData = userRes[0];
             if (keyRes.length > 0) {
@@ -133,56 +115,76 @@ app.get('/developer/dashboard', cekUser, (req, res) => {
                 userData.api_key = null;
                 userData.status = 'active';
             }
-            // User Dashboard tidak perlu JSON di Postman (kecuali diminta), tapi biar aman kita render saja HTMLnya
-            // atau kalau mau JSON juga bisa ditambahkan logic isPostman disini. 
-            // Sesuai request "User jangan diubah", saya biarkan render default (tapi logic auth diatas sudah hybrid).
             res.render('user/dashboard', { user: userData });
         });
     });
 });
 
-// Generate Key
 app.post('/developer/generate-key', cekUser, (req, res) => {
     const newKey = 'nct_' + crypto.randomBytes(16).toString('hex');
     db.query('INSERT INTO api_keys (user_id, key_string, status) VALUES (?, ?, "active")', [req.session.userId, newKey], (err) => {
-        if(err) return res.send("Database Error");
-        
-        if (isPostman(req)) res.json({ status: "success", message: "API Key Baru Berhasil Dibuat!", new_key: newKey });
+        if (isPostman(req)) res.json({ status: "success", message: "Key Baru Dibuat!", new_key: newKey });
         else res.redirect('/developer/dashboard');
     });
 });
 
-// Logout Developer
 app.get('/developer/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if(err) return res.send("Gagal Logout");
-        if (isPostman(req)) res.send("LOGOUT DEVELOPER BERHASIL! Sesi Anda telah dihapus.");
+    req.session.destroy(() => {
+        if (isPostman(req)) res.send("LOGOUT USER BERHASIL!");
         else res.redirect('/developer/login');
     });
 });
 
 
 // ==========================================
-// 5. API ENDPOINTS (DATA PROVIDER)
+// 5. API ENDPOINTS (Many-to-Many Logic)
 // ==========================================
 
+// Helper query untuk mengambil member + semua unitnya (digabung koma)
+const sqlGetMembers = `
+    SELECT members.*, GROUP_CONCAT(units.nama_unit SEPARATOR ', ') as unit_names 
+    FROM members 
+    LEFT JOIN member_units ON members.id = member_units.member_id 
+    LEFT JOIN units ON member_units.unit_id = units.id 
+    GROUP BY members.id
+`;
+
 app.get('/api/v1/members', cekApiKey, (req, res) => {
-    db.query('SELECT * FROM members', (err, results) => res.json({ status: "success", total_data: results.length, data: results }));
+    db.query(sqlGetMembers, (err, results) => {
+        if(err) return res.status(500).json({status: "error", message: "Database Error"});
+        res.json({ status: "success", total_data: results.length, data: results });
+    });
 });
 
 app.get('/api/v1/member/:id', cekApiKey, (req, res) => {
-    db.query('SELECT * FROM members WHERE id = ?', [req.params.id], (err, results) => {
+    const sql = sqlGetMembers + " HAVING members.id = ?";
+    db.query(sql, [req.params.id], (err, results) => {
         if(results.length === 0) return res.status(404).json({status: "fail", message: "Not Found"});
         res.json({ status: "success", data: results[0] });
     });
 });
 
 app.get('/api/v1/download/member/:id', cekApiKey, (req, res) => {
-    const id = req.params.id;
-    db.query('SELECT * FROM members WHERE id = ?', [id], (err, results) => {
+    const sql = sqlGetMembers + " HAVING members.id = ?";
+    db.query(sql, [req.params.id], (err, results) => {
         if (err || results.length === 0) return res.send("Data not found");
         const m = results[0];
-        const content = `NCT MEMBER REPORT\nID: ${m.id}\nNama: ${m.nama_panggung}\nPosisi: ${m.posisi}`;
+        const content = 
+`=======================================
+   NCT MEMBER OFFICIAL REPORT
+=======================================
+ID Member    : ${m.id}
+Nama Panggung: ${m.nama_panggung}
+Nama Lengkap : ${m.nama_lengkap || '-'}
+Unit         : ${m.unit_names || '-'}
+Posisi       : ${m.posisi}
+Asal Negara  : ${m.asal_negara}
+Tanggal Lahir: ${m.tgl_lahir || '-'}
+
+BIOGRAFI SINGKAT:
+${m.biografi || 'Tidak ada data biografi.'}
+=======================================`;
+
         res.setHeader('Content-disposition', `attachment; filename=Member_${m.nama_panggung}.txt`);
         res.setHeader('Content-type', 'text/plain');
         res.send(content);
@@ -191,10 +193,9 @@ app.get('/api/v1/download/member/:id', cekApiKey, (req, res) => {
 
 
 // ==========================================
-// 6. ROUTE ADMIN (FULL HYBRID SYSTEM)
+// 6. ROUTE ADMIN (BACKEND UTAMA)
 // ==========================================
 
-// Login Admin
 app.get('/login', (req, res) => {
     if (req.session.role === 'admin') res.redirect('/admin');
     else res.render('login', {error: null});
@@ -205,80 +206,29 @@ app.post('/login', (req, res) => {
     db.query('SELECT * FROM admin WHERE username = ? AND password = ?', [username, password], (err, resDb) => {
         if(resDb.length > 0) {
             req.session.role = 'admin';
-            if (isPostman(req)) res.send("LOGIN ADMIN BERHASIL! Silakan akses route /admin.");
+            if (isPostman(req)) res.send("LOGIN ADMIN BERHASIL!");
             else res.redirect('/admin');
         } else {
-            res.render('login', {error: "Username atau Password Salah!"});
+            res.render('login', {error: "Username Salah!"});
         }
     });
 });
 
-// Dashboard Admin
 app.get('/admin', cekAdmin, (req, res) => {
     const sqlCount = `SELECT (SELECT COUNT(*) FROM units) as totalUnits, (SELECT COUNT(*) FROM members) as totalMembers, (SELECT COUNT(*) FROM api_users) as totalUsers`; 
     db.query(sqlCount, (err, results) => {
-        if (isPostman(req)) return res.json({ status: "success", dashboard_stats: results[0] });
-        
+        if (isPostman(req)) return res.json({ status: "success", stats: results[0] });
         res.render('admin/dashboard', {
             totalUnits: results[0].totalUnits, totalMembers: results[0].totalMembers, totalUsers: results[0].totalUsers, page: 'dashboard' 
         });
     });
 });
 
-// --- ADMIN: MANAJEMEN USER ---
+// --- ADMIN: MEMBERS CRUD (MANY-TO-MANY) ---
 
-// Read All User
-app.get('/admin/users', cekAdmin, (req, res) => {
-    db.query('SELECT * FROM api_users ORDER BY id DESC', (err, results) => {
-        if (isPostman(req)) return res.json({ status: "success", data: results });
-        res.render('admin/users', { users: results, page: 'users' });
-    });
-});
-
-// Detail User
-app.get('/admin/users/detail/:id', cekAdmin, (req, res) => {
-    db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, userRes) => {
-        db.query('SELECT * FROM api_keys WHERE user_id = ? ORDER BY created_at DESC', [req.params.id], (err, keysRes) => {
-            if (isPostman(req)) return res.json({ status: "success", user_detail: userRes[0], key_history: keysRes });
-            res.render('admin/user_detail', { user: userRes[0], keys: keysRes, page: 'users' });
-        });
-    });
-});
-
-// Form Edit User (Hanya Web)
-app.get('/admin/users/edit/:id', cekAdmin, (req, res) => {
-    db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, r) => res.render('admin/user_edit', { user: r[0], page: 'users' }));
-});
-
-// Update User (Edit)
-app.post('/admin/users/update/:id', cekAdmin, (req, res) => {
-    const { nama_lengkap, email, password } = req.body;
-    db.query('UPDATE api_users SET nama_lengkap=?, email=?, password=? WHERE id=?', [nama_lengkap, email, password, req.params.id], (err) => {
-        if (isPostman(req)) return res.json({ status: "success", message: `User ID ${req.params.id} berhasil diupdate.` });
-        res.redirect('/admin/users');
-    });
-});
-
-// Toggle API Key (Non-Aktifkan Key)
-app.get('/admin/keys/toggle/:keyId/:userId', cekAdmin, (req, res) => {
-    db.query('SELECT status FROM api_keys WHERE id = ?', [req.params.keyId], (err, r) => {
-        if(r.length === 0) return res.send("Key not found");
-        const currentStatus = r[0].status;
-        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-        
-        db.query('UPDATE api_keys SET status = ? WHERE id = ?', [newStatus, req.params.keyId], () => {
-            if (isPostman(req)) return res.json({ status: "success", message: `Key ID ${req.params.keyId} status changed to ${newStatus}` });
-            res.redirect(`/admin/users/detail/${req.params.userId}`);
-        });
-    });
-});
-
-
-// --- ADMIN: CRUD MEMBERS ---
-
-// Read Members
 app.get('/admin/members', cekAdmin, (req, res) => {
-    db.query('SELECT * FROM members ORDER BY id DESC', (err, r) => {
+    // Tampilkan data dengan semua unitnya
+    db.query(sqlGetMembers + " ORDER BY members.id DESC", (err, r) => {
         if (isPostman(req)) return res.json({ status: "success", data: r });
         res.render('admin/members', { members: r, page: 'members' });
     });
@@ -288,44 +238,94 @@ app.get('/admin/members/add', cekAdmin, (req, res) => {
     db.query('SELECT * FROM units', (err, r) => res.render('admin/member_form', { units: r, page: 'members' }));
 });
 
-// Create Member
+// ✅ ADD MEMBER (SIMPAN BANYAK UNIT)
 app.post('/admin/members/add', cekAdmin, (req, res) => {
-    const { nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto } = req.body;
+    const { nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, units } = req.body;
+    
+    // 1. Insert Member dulu
     db.query('INSERT INTO members (nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-    [nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto], () => {
-        if (isPostman(req)) return res.json({ status: "success", message: "Member berhasil ditambahkan" });
-        res.redirect('/admin/members');
+    [nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto], (err, result) => {
+        if(err) return res.send("Error Insert Member");
+        
+        const newMemberId = result.insertId;
+        
+        // 2. Jika ada unit yang dipilih, masukkan ke tabel member_units
+        if (units) {
+            // Pastikan units bentuknya array (kalo cuma pilih 1, dia jadi string)
+            const unitArray = Array.isArray(units) ? units : [units];
+            
+            // Siapkan data untuk bulk insert [[1, 2], [1, 5]] (member_id, unit_id)
+            const values = unitArray.map(uId => [newMemberId, uId]);
+            
+            db.query('INSERT INTO member_units (member_id, unit_id) VALUES ?', [values], (err) => {
+                if (isPostman(req)) return res.json({ status: "success", message: "Member & Units Added" });
+                res.redirect('/admin/members');
+            });
+        } else {
+            if (isPostman(req)) return res.json({ status: "success", message: "Member Added (No Units)" });
+            res.redirect('/admin/members');
+        }
     });
 });
 
 app.get('/admin/members/edit/:id', cekAdmin, (req, res) => {
-    db.query('SELECT * FROM members WHERE id=?', [req.params.id], (e, r) => {
-        db.query('SELECT * FROM units', (err, u) => res.render('admin/member_edit', { member: r[0], units: u, currentUnitIds: [], page: 'members' }));
+    db.query('SELECT * FROM members WHERE id=?', [req.params.id], (e, memberRes) => {
+        // Ambil daftar unit yang SUDAH dipilih member ini
+        db.query('SELECT unit_id FROM member_units WHERE member_id=?', [req.params.id], (e, selectedUnits) => {
+            // Ubah ke array simple [1, 3, 5]
+            const currentUnitIds = selectedUnits.map(u => u.unit_id);
+            
+            db.query('SELECT * FROM units', (err, allUnits) => {
+                 res.render('admin/member_edit', { 
+                     member: memberRes[0], 
+                     units: allUnits, 
+                     currentUnitIds: currentUnitIds, // Kirim ke view utk diceklis otomatis
+                     page: 'members' 
+                });
+            });
+        });
     });
 });
 
-// Update Member
+// ✅ UPDATE MEMBER (RESET UNIT)
 app.post('/admin/members/update/:id', cekAdmin, (req, res) => {
-    const { nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto } = req.body;
+    const { nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, units } = req.body;
+    
+    // 1. Update data dasar
     db.query('UPDATE members SET nama_panggung=?, nama_lengkap=?, tgl_lahir=?, asal_negara=?, posisi=?, biografi=?, foto=? WHERE id=?', 
     [nama_panggung, nama_lengkap, tgl_lahir, asal_negara, posisi, biografi, foto, req.params.id], () => {
-        if (isPostman(req)) return res.json({ status: "success", message: `Member ID ${req.params.id} berhasil diupdate` });
-        res.redirect('/admin/members');
+        
+        // 2. Hapus semua unit lama member ini
+        db.query('DELETE FROM member_units WHERE member_id=?', [req.params.id], () => {
+            
+            // 3. Masukkan unit baru (jika ada yang dipilih)
+            if (units) {
+                const unitArray = Array.isArray(units) ? units : [units];
+                const values = unitArray.map(uId => [req.params.id, uId]);
+                
+                db.query('INSERT INTO member_units (member_id, unit_id) VALUES ?', [values], () => {
+                    if (isPostman(req)) return res.json({ status: "success", message: "Member Updated" });
+                    res.redirect('/admin/members');
+                });
+            } else {
+                if (isPostman(req)) return res.json({ status: "success", message: "Member Updated (No Units)" });
+                res.redirect('/admin/members');
+            }
+        });
     });
 });
 
-// Delete Member
 app.get('/admin/members/delete/:id', cekAdmin, (req, res) => {
+    // Karena ON DELETE CASCADE di database, hapus di tabel members otomatis hapus di member_units
     db.query('DELETE FROM members WHERE id=?', [req.params.id], () => {
-        if (isPostman(req)) return res.json({ status: "success", message: `Member ID ${req.params.id} berhasil dihapus` });
+        if (isPostman(req)) return res.json({ status: "success", message: "Member Deleted" });
         res.redirect('/admin/members');
     });
 });
 
 
-// --- ADMIN: CRUD UNITS ---
+// --- ADMIN: UNITS CRUD ---
 
-// Read Units
 app.get('/admin/units', cekAdmin, (req, res) => {
     db.query('SELECT * FROM units', (e, r) => {
         if (isPostman(req)) return res.json({ status: "success", data: r });
@@ -335,19 +335,17 @@ app.get('/admin/units', cekAdmin, (req, res) => {
 
 app.get('/admin/units/add', cekAdmin, (req, res) => res.render('admin/unit_form', { page: 'units' }));
 
-// Create Unit
 app.post('/admin/units/add', cekAdmin, (req, res) => {
     const { nama_unit, deskripsi, logo } = req.body;
     db.query('INSERT INTO units (nama_unit, deskripsi, logo) VALUES (?, ?, ?)', [nama_unit, deskripsi, logo], () => {
-        if (isPostman(req)) return res.json({ status: "success", message: "Unit berhasil ditambahkan" });
+        if (isPostman(req)) return res.json({ status: "success", message: "Unit Added" });
         res.redirect('/admin/units');
     });
 });
 
-// Delete Unit
 app.get('/admin/units/delete/:id', cekAdmin, (req, res) => {
     db.query('DELETE FROM units WHERE id = ?', [req.params.id], () => {
-        if (isPostman(req)) return res.json({ status: "success", message: `Unit ID ${req.params.id} berhasil dihapus` });
+        if (isPostman(req)) return res.json({ status: "success", message: "Unit Deleted" });
         res.redirect('/admin/units');
     });
 });
@@ -356,24 +354,60 @@ app.get('/admin/units/edit/:id', cekAdmin, (req, res) => {
     db.query('SELECT * FROM units WHERE id = ?', [req.params.id], (e, r) => res.render('admin/unit_edit', { unit: r[0], page: 'units' }));
 });
 
-// Update Unit
 app.post('/admin/units/update/:id', cekAdmin, (req, res) => {
     const { nama_unit, deskripsi, logo } = req.body;
     db.query('UPDATE units SET nama_unit=?, deskripsi=?, logo=? WHERE id=?', [nama_unit, deskripsi, logo, req.params.id], () => {
-        if (isPostman(req)) return res.json({ status: "success", message: `Unit ID ${req.params.id} berhasil diupdate` });
+        if (isPostman(req)) return res.json({ status: "success", message: "Unit Updated" });
         res.redirect('/admin/units');
     });
 });
 
-// Logout General (Admin/User)
+
+// --- ADMIN: USERS & KEYS ---
+
+app.get('/admin/users', cekAdmin, (req, res) => {
+    db.query('SELECT * FROM api_users ORDER BY id DESC', (err, results) => {
+        if (isPostman(req)) return res.json({ status: "success", data: results });
+        res.render('admin/users', { users: results, page: 'users' });
+    });
+});
+
+app.get('/admin/users/detail/:id', cekAdmin, (req, res) => {
+    db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, userRes) => {
+        db.query('SELECT * FROM api_keys WHERE user_id = ? ORDER BY created_at DESC', [req.params.id], (err, keysRes) => {
+            if (isPostman(req)) return res.json({ status: "success", user: userRes[0], keys: keysRes });
+            res.render('admin/user_detail', { user: userRes[0], keys: keysRes, page: 'users' });
+        });
+    });
+});
+
+app.get('/admin/users/edit/:id', cekAdmin, (req, res) => {
+    db.query('SELECT * FROM api_users WHERE id = ?', [req.params.id], (err, r) => res.render('admin/user_edit', { user: r[0], page: 'users' }));
+});
+
+app.post('/admin/users/update/:id', cekAdmin, (req, res) => {
+    const { nama_lengkap, email, password } = req.body;
+    db.query('UPDATE api_users SET nama_lengkap=?, email=?, password=? WHERE id=?', [nama_lengkap, email, password, req.params.id], (err) => {
+        if (isPostman(req)) return res.json({ status: "success", message: "User Updated" });
+        res.redirect('/admin/users');
+    });
+});
+
+app.get('/admin/keys/toggle/:keyId/:userId', cekAdmin, (req, res) => {
+    db.query('SELECT status FROM api_keys WHERE id = ?', [req.params.keyId], (err, r) => {
+        const newStatus = r[0].status === 'active' ? 'inactive' : 'active';
+        db.query('UPDATE api_keys SET status = ? WHERE id = ?', [newStatus, req.params.keyId], () => {
+            if (isPostman(req)) return res.json({ status: "success", message: "Key Status Changed" });
+            res.redirect(`/admin/users/detail/${req.params.userId}`);
+        });
+    });
+});
+
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
-        if (isPostman(req)) res.send("LOGOUT BERHASIL!");
+        if (isPostman(req)) res.send("LOGOUT ADMIN BERHASIL!");
         else res.redirect('/login');
     });
 });
 
-// Jalankan Server
-app.listen(port, () => {
-    console.log(`🚀 Server berjalan di http://localhost:${port}`);
-});
+app.listen(port, () => console.log(`🚀 Server berjalan di http://localhost:${port}`));

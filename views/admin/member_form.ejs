@@ -67,11 +67,12 @@
             </div>
 
             <div class="form-group">
-                <label>Pilih Unit (Boleh lebih dari 1):</label>
+                <label>Pilih Unit (Bisa lebih dari satu):</label>
                 <div class="checkbox-group">
                     <% units.forEach(u => { %>
                         <label class="checkbox-item">
-                            <input type="checkbox" name="units" value="<%= u.id %>"> <%= u.nama_unit %>
+                            <input type="checkbox" name="units" value="<%= u.id %>"> 
+                            <%= u.nama_unit %>
                         </label>
                     <% }) %>
                 </div>
